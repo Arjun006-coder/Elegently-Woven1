@@ -13,7 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BanarasiRouteImport } from './routes/banarasi'
 import { Route as BestSellersRouteImport } from './routes/best-sellers'
 import { Route as BridalRouteImport } from './routes/bridal'
+import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as CottonSareesRouteImport } from './routes/cotton-sarees'
 import { Route as DailyWearRouteImport } from './routes/daily-wear'
@@ -51,9 +53,19 @@ const BridalRoute = BridalRouteImport.update({
   path: '/bridal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CollectionsRoute = CollectionsRouteImport.update({
@@ -142,7 +154,9 @@ export interface FileRoutesByFullPath {
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
+  '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/checkout': typeof CheckoutRoute
   '/collections': typeof CollectionsRoute
   '/cotton-sarees': typeof CottonSareesRoute
   '/daily-wear': typeof DailyWearRoute
@@ -165,7 +179,9 @@ export interface FileRoutesByTo {
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
+  '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/checkout': typeof CheckoutRoute
   '/collections': typeof CollectionsRoute
   '/cotton-sarees': typeof CottonSareesRoute
   '/daily-wear': typeof DailyWearRoute
@@ -189,7 +205,9 @@ export interface FileRoutesById {
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
+  '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/checkout': typeof CheckoutRoute
   '/collections': typeof CollectionsRoute
   '/cotton-sarees': typeof CottonSareesRoute
   '/daily-wear': typeof DailyWearRoute
@@ -214,7 +232,9 @@ export interface FileRouteTypes {
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
+    | '/cart'
     | '/categories'
+    | '/checkout'
     | '/collections'
     | '/cotton-sarees'
     | '/daily-wear'
@@ -237,7 +257,9 @@ export interface FileRouteTypes {
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
+    | '/cart'
     | '/categories'
+    | '/checkout'
     | '/collections'
     | '/cotton-sarees'
     | '/daily-wear'
@@ -260,7 +282,9 @@ export interface FileRouteTypes {
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
+    | '/cart'
     | '/categories'
+    | '/checkout'
     | '/collections'
     | '/cotton-sarees'
     | '/daily-wear'
@@ -284,7 +308,9 @@ export interface RootRouteChildren {
   BanarasiRoute: typeof BanarasiRoute
   BestSellersRoute: typeof BestSellersRoute
   BridalRoute: typeof BridalRoute
+  CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
+  CheckoutRoute: typeof CheckoutRoute
   CollectionsRoute: typeof CollectionsRoute
   CottonSareesRoute: typeof CottonSareesRoute
   DailyWearRoute: typeof DailyWearRoute
@@ -333,11 +359,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BridalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories': {
       id: '/categories'
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/collections': {
@@ -460,7 +500,9 @@ const rootRouteChildren: RootRouteChildren = {
   BanarasiRoute: BanarasiRoute,
   BestSellersRoute: BestSellersRoute,
   BridalRoute: BridalRoute,
+  CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
+  CheckoutRoute: CheckoutRoute,
   CollectionsRoute: CollectionsRoute,
   CottonSareesRoute: CottonSareesRoute,
   DailyWearRoute: DailyWearRoute,

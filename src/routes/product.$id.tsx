@@ -150,7 +150,7 @@ function ProductPage() {
             </div>
           </div>
           <div className="mt-4 grid grid-cols-4 gap-3">
-            {product.images.map((img, i) => (
+            {(product.images as string[]).map((img: string, i: number) => (
               <button
                 key={i}
                 type="button"

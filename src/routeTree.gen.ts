@@ -29,6 +29,7 @@ import { Route as SaleRouteImport } from './routes/sale'
 import { Route as SilkSareesRouteImport } from './routes/silk-sarees'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as WeddingRouteImport } from './routes/wedding'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -130,6 +131,11 @@ const WeddingRoute = WeddingRouteImport.update({
   path: '/wedding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/silk-sarees': typeof SilkSareesRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/silk-sarees': typeof SilkSareesRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/silk-sarees': typeof SilkSareesRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/silk-sarees'
     | '/trending'
     | '/wedding'
+    | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/silk-sarees'
     | '/trending'
     | '/wedding'
+    | '/product/$id'
   id:
     | '__root__'
     | '/'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/silk-sarees'
     | '/trending'
     | '/wedding'
+    | '/product/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -288,6 +300,7 @@ export interface RootRouteChildren {
   SilkSareesRoute: typeof SilkSareesRoute
   TrendingRoute: typeof TrendingRoute
   WeddingRoute: typeof WeddingRoute
+  ProductIdRoute: typeof ProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -432,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WeddingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -456,6 +476,7 @@ const rootRouteChildren: RootRouteChildren = {
   SilkSareesRoute: SilkSareesRoute,
   TrendingRoute: TrendingRoute,
   WeddingRoute: WeddingRoute,
+  ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -10,33 +10,284 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BanarasiRouteImport } from './routes/banarasi'
+import { Route as BestSellersRouteImport } from './routes/best-sellers'
+import { Route as BridalRouteImport } from './routes/bridal'
+import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as CollectionsRouteImport } from './routes/collections'
+import { Route as CottonSareesRouteImport } from './routes/cotton-sarees'
+import { Route as DailyWearRouteImport } from './routes/daily-wear'
+import { Route as DesignerRouteImport } from './routes/designer'
+import { Route as FestivalRouteImport } from './routes/festival'
+import { Route as HandloomRouteImport } from './routes/handloom'
+import { Route as KanjivaramRouteImport } from './routes/kanjivaram'
+import { Route as LinenRouteImport } from './routes/linen'
+import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
+import { Route as OfficeWearRouteImport } from './routes/office-wear'
+import { Route as PartyWearRouteImport } from './routes/party-wear'
+import { Route as SaleRouteImport } from './routes/sale'
+import { Route as SilkSareesRouteImport } from './routes/silk-sarees'
+import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as WeddingRouteImport } from './routes/wedding'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BanarasiRoute = BanarasiRouteImport.update({
+  id: '/banarasi',
+  path: '/banarasi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BestSellersRoute = BestSellersRouteImport.update({
+  id: '/best-sellers',
+  path: '/best-sellers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BridalRoute = BridalRouteImport.update({
+  id: '/bridal',
+  path: '/bridal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsRoute = CollectionsRouteImport.update({
+  id: '/collections',
+  path: '/collections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CottonSareesRoute = CottonSareesRouteImport.update({
+  id: '/cotton-sarees',
+  path: '/cotton-sarees',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyWearRoute = DailyWearRouteImport.update({
+  id: '/daily-wear',
+  path: '/daily-wear',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignerRoute = DesignerRouteImport.update({
+  id: '/designer',
+  path: '/designer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FestivalRoute = FestivalRouteImport.update({
+  id: '/festival',
+  path: '/festival',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HandloomRoute = HandloomRouteImport.update({
+  id: '/handloom',
+  path: '/handloom',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KanjivaramRoute = KanjivaramRouteImport.update({
+  id: '/kanjivaram',
+  path: '/kanjivaram',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinenRoute = LinenRouteImport.update({
+  id: '/linen',
+  path: '/linen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewArrivalsRoute = NewArrivalsRouteImport.update({
+  id: '/new-arrivals',
+  path: '/new-arrivals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfficeWearRoute = OfficeWearRouteImport.update({
+  id: '/office-wear',
+  path: '/office-wear',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartyWearRoute = PartyWearRouteImport.update({
+  id: '/party-wear',
+  path: '/party-wear',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaleRoute = SaleRouteImport.update({
+  id: '/sale',
+  path: '/sale',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SilkSareesRoute = SilkSareesRouteImport.update({
+  id: '/silk-sarees',
+  path: '/silk-sarees',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrendingRoute = TrendingRouteImport.update({
+  id: '/trending',
+  path: '/trending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WeddingRoute = WeddingRouteImport.update({
+  id: '/wedding',
+  path: '/wedding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/banarasi': typeof BanarasiRoute
+  '/best-sellers': typeof BestSellersRoute
+  '/bridal': typeof BridalRoute
+  '/categories': typeof CategoriesRoute
+  '/collections': typeof CollectionsRoute
+  '/cotton-sarees': typeof CottonSareesRoute
+  '/daily-wear': typeof DailyWearRoute
+  '/designer': typeof DesignerRoute
+  '/festival': typeof FestivalRoute
+  '/handloom': typeof HandloomRoute
+  '/kanjivaram': typeof KanjivaramRoute
+  '/linen': typeof LinenRoute
+  '/new-arrivals': typeof NewArrivalsRoute
+  '/office-wear': typeof OfficeWearRoute
+  '/party-wear': typeof PartyWearRoute
+  '/sale': typeof SaleRoute
+  '/silk-sarees': typeof SilkSareesRoute
+  '/trending': typeof TrendingRoute
+  '/wedding': typeof WeddingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/banarasi': typeof BanarasiRoute
+  '/best-sellers': typeof BestSellersRoute
+  '/bridal': typeof BridalRoute
+  '/categories': typeof CategoriesRoute
+  '/collections': typeof CollectionsRoute
+  '/cotton-sarees': typeof CottonSareesRoute
+  '/daily-wear': typeof DailyWearRoute
+  '/designer': typeof DesignerRoute
+  '/festival': typeof FestivalRoute
+  '/handloom': typeof HandloomRoute
+  '/kanjivaram': typeof KanjivaramRoute
+  '/linen': typeof LinenRoute
+  '/new-arrivals': typeof NewArrivalsRoute
+  '/office-wear': typeof OfficeWearRoute
+  '/party-wear': typeof PartyWearRoute
+  '/sale': typeof SaleRoute
+  '/silk-sarees': typeof SilkSareesRoute
+  '/trending': typeof TrendingRoute
+  '/wedding': typeof WeddingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/banarasi': typeof BanarasiRoute
+  '/best-sellers': typeof BestSellersRoute
+  '/bridal': typeof BridalRoute
+  '/categories': typeof CategoriesRoute
+  '/collections': typeof CollectionsRoute
+  '/cotton-sarees': typeof CottonSareesRoute
+  '/daily-wear': typeof DailyWearRoute
+  '/designer': typeof DesignerRoute
+  '/festival': typeof FestivalRoute
+  '/handloom': typeof HandloomRoute
+  '/kanjivaram': typeof KanjivaramRoute
+  '/linen': typeof LinenRoute
+  '/new-arrivals': typeof NewArrivalsRoute
+  '/office-wear': typeof OfficeWearRoute
+  '/party-wear': typeof PartyWearRoute
+  '/sale': typeof SaleRoute
+  '/silk-sarees': typeof SilkSareesRoute
+  '/trending': typeof TrendingRoute
+  '/wedding': typeof WeddingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/banarasi'
+    | '/best-sellers'
+    | '/bridal'
+    | '/categories'
+    | '/collections'
+    | '/cotton-sarees'
+    | '/daily-wear'
+    | '/designer'
+    | '/festival'
+    | '/handloom'
+    | '/kanjivaram'
+    | '/linen'
+    | '/new-arrivals'
+    | '/office-wear'
+    | '/party-wear'
+    | '/sale'
+    | '/silk-sarees'
+    | '/trending'
+    | '/wedding'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/banarasi'
+    | '/best-sellers'
+    | '/bridal'
+    | '/categories'
+    | '/collections'
+    | '/cotton-sarees'
+    | '/daily-wear'
+    | '/designer'
+    | '/festival'
+    | '/handloom'
+    | '/kanjivaram'
+    | '/linen'
+    | '/new-arrivals'
+    | '/office-wear'
+    | '/party-wear'
+    | '/sale'
+    | '/silk-sarees'
+    | '/trending'
+    | '/wedding'
+  id:
+    | '__root__'
+    | '/'
+    | '/banarasi'
+    | '/best-sellers'
+    | '/bridal'
+    | '/categories'
+    | '/collections'
+    | '/cotton-sarees'
+    | '/daily-wear'
+    | '/designer'
+    | '/festival'
+    | '/handloom'
+    | '/kanjivaram'
+    | '/linen'
+    | '/new-arrivals'
+    | '/office-wear'
+    | '/party-wear'
+    | '/sale'
+    | '/silk-sarees'
+    | '/trending'
+    | '/wedding'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BanarasiRoute: typeof BanarasiRoute
+  BestSellersRoute: typeof BestSellersRoute
+  BridalRoute: typeof BridalRoute
+  CategoriesRoute: typeof CategoriesRoute
+  CollectionsRoute: typeof CollectionsRoute
+  CottonSareesRoute: typeof CottonSareesRoute
+  DailyWearRoute: typeof DailyWearRoute
+  DesignerRoute: typeof DesignerRoute
+  FestivalRoute: typeof FestivalRoute
+  HandloomRoute: typeof HandloomRoute
+  KanjivaramRoute: typeof KanjivaramRoute
+  LinenRoute: typeof LinenRoute
+  NewArrivalsRoute: typeof NewArrivalsRoute
+  OfficeWearRoute: typeof OfficeWearRoute
+  PartyWearRoute: typeof PartyWearRoute
+  SaleRoute: typeof SaleRoute
+  SilkSareesRoute: typeof SilkSareesRoute
+  TrendingRoute: typeof TrendingRoute
+  WeddingRoute: typeof WeddingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +299,163 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/banarasi': {
+      id: '/banarasi'
+      path: '/banarasi'
+      fullPath: '/banarasi'
+      preLoaderRoute: typeof BanarasiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/best-sellers': {
+      id: '/best-sellers'
+      path: '/best-sellers'
+      fullPath: '/best-sellers'
+      preLoaderRoute: typeof BestSellersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bridal': {
+      id: '/bridal'
+      path: '/bridal'
+      fullPath: '/bridal'
+      preLoaderRoute: typeof BridalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections': {
+      id: '/collections'
+      path: '/collections'
+      fullPath: '/collections'
+      preLoaderRoute: typeof CollectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cotton-sarees': {
+      id: '/cotton-sarees'
+      path: '/cotton-sarees'
+      fullPath: '/cotton-sarees'
+      preLoaderRoute: typeof CottonSareesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily-wear': {
+      id: '/daily-wear'
+      path: '/daily-wear'
+      fullPath: '/daily-wear'
+      preLoaderRoute: typeof DailyWearRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/designer': {
+      id: '/designer'
+      path: '/designer'
+      fullPath: '/designer'
+      preLoaderRoute: typeof DesignerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/festival': {
+      id: '/festival'
+      path: '/festival'
+      fullPath: '/festival'
+      preLoaderRoute: typeof FestivalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/handloom': {
+      id: '/handloom'
+      path: '/handloom'
+      fullPath: '/handloom'
+      preLoaderRoute: typeof HandloomRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kanjivaram': {
+      id: '/kanjivaram'
+      path: '/kanjivaram'
+      fullPath: '/kanjivaram'
+      preLoaderRoute: typeof KanjivaramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/linen': {
+      id: '/linen'
+      path: '/linen'
+      fullPath: '/linen'
+      preLoaderRoute: typeof LinenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new-arrivals': {
+      id: '/new-arrivals'
+      path: '/new-arrivals'
+      fullPath: '/new-arrivals'
+      preLoaderRoute: typeof NewArrivalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/office-wear': {
+      id: '/office-wear'
+      path: '/office-wear'
+      fullPath: '/office-wear'
+      preLoaderRoute: typeof OfficeWearRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/party-wear': {
+      id: '/party-wear'
+      path: '/party-wear'
+      fullPath: '/party-wear'
+      preLoaderRoute: typeof PartyWearRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sale': {
+      id: '/sale'
+      path: '/sale'
+      fullPath: '/sale'
+      preLoaderRoute: typeof SaleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/silk-sarees': {
+      id: '/silk-sarees'
+      path: '/silk-sarees'
+      fullPath: '/silk-sarees'
+      preLoaderRoute: typeof SilkSareesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trending': {
+      id: '/trending'
+      path: '/trending'
+      fullPath: '/trending'
+      preLoaderRoute: typeof TrendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wedding': {
+      id: '/wedding'
+      path: '/wedding'
+      fullPath: '/wedding'
+      preLoaderRoute: typeof WeddingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BanarasiRoute: BanarasiRoute,
+  BestSellersRoute: BestSellersRoute,
+  BridalRoute: BridalRoute,
+  CategoriesRoute: CategoriesRoute,
+  CollectionsRoute: CollectionsRoute,
+  CottonSareesRoute: CottonSareesRoute,
+  DailyWearRoute: DailyWearRoute,
+  DesignerRoute: DesignerRoute,
+  FestivalRoute: FestivalRoute,
+  HandloomRoute: HandloomRoute,
+  KanjivaramRoute: KanjivaramRoute,
+  LinenRoute: LinenRoute,
+  NewArrivalsRoute: NewArrivalsRoute,
+  OfficeWearRoute: OfficeWearRoute,
+  PartyWearRoute: PartyWearRoute,
+  SaleRoute: SaleRoute,
+  SilkSareesRoute: SilkSareesRoute,
+  TrendingRoute: TrendingRoute,
+  WeddingRoute: WeddingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

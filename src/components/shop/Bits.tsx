@@ -65,11 +65,11 @@ export function PageHero({
   image,
   compact,
 }: {
-  eyebrow?: string;
+  eyebrow?: string | undefined;
   title: string;
-  description?: string;
-  image?: string;
-  compact?: boolean;
+  description?: string | undefined;
+  image?: string | undefined;
+  compact?: boolean | undefined;
 }) {
   return (
     <section className="relative isolate overflow-hidden border-b border-border/60">

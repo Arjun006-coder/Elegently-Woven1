@@ -26,11 +26,15 @@ import { Route as KanjivaramRouteImport } from './routes/kanjivaram'
 import { Route as LinenRouteImport } from './routes/linen'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
 import { Route as OfficeWearRouteImport } from './routes/office-wear'
+import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as PartyWearRouteImport } from './routes/party-wear'
+import { Route as PaymentRouteImport } from './routes/payment'
+import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as SaleRouteImport } from './routes/sale'
 import { Route as SilkSareesRouteImport } from './routes/silk-sarees'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as WeddingRouteImport } from './routes/wedding'
+import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -118,9 +122,24 @@ const OfficeWearRoute = OfficeWearRouteImport.update({
   path: '/office-wear',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrderSuccessRoute = OrderSuccessRouteImport.update({
+  id: '/order-success',
+  path: '/order-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartyWearRoute = PartyWearRouteImport.update({
   id: '/party-wear',
   path: '/party-wear',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentRoute = PaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentFailedRoute = PaymentFailedRouteImport.update({
+  id: '/payment-failed',
+  path: '/payment-failed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SaleRoute = SaleRouteImport.update({
@@ -141,6 +160,11 @@ const TrendingRoute = TrendingRouteImport.update({
 const WeddingRoute = WeddingRouteImport.update({
   id: '/wedding',
   path: '/wedding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WishlistRoute = WishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductIdRoute = ProductIdRouteImport.update({
@@ -167,11 +191,15 @@ export interface FileRoutesByFullPath {
   '/linen': typeof LinenRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/office-wear': typeof OfficeWearRoute
+  '/order-success': typeof OrderSuccessRoute
   '/party-wear': typeof PartyWearRoute
+  '/payment': typeof PaymentRoute
+  '/payment-failed': typeof PaymentFailedRoute
   '/sale': typeof SaleRoute
   '/silk-sarees': typeof SilkSareesRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
+  '/wishlist': typeof WishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesByTo {
@@ -192,11 +220,15 @@ export interface FileRoutesByTo {
   '/linen': typeof LinenRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/office-wear': typeof OfficeWearRoute
+  '/order-success': typeof OrderSuccessRoute
   '/party-wear': typeof PartyWearRoute
+  '/payment': typeof PaymentRoute
+  '/payment-failed': typeof PaymentFailedRoute
   '/sale': typeof SaleRoute
   '/silk-sarees': typeof SilkSareesRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
+  '/wishlist': typeof WishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesById {
@@ -218,11 +250,15 @@ export interface FileRoutesById {
   '/linen': typeof LinenRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/office-wear': typeof OfficeWearRoute
+  '/order-success': typeof OrderSuccessRoute
   '/party-wear': typeof PartyWearRoute
+  '/payment': typeof PaymentRoute
+  '/payment-failed': typeof PaymentFailedRoute
   '/sale': typeof SaleRoute
   '/silk-sarees': typeof SilkSareesRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
+  '/wishlist': typeof WishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRouteTypes {
@@ -245,11 +281,15 @@ export interface FileRouteTypes {
     | '/linen'
     | '/new-arrivals'
     | '/office-wear'
+    | '/order-success'
     | '/party-wear'
+    | '/payment'
+    | '/payment-failed'
     | '/sale'
     | '/silk-sarees'
     | '/trending'
     | '/wedding'
+    | '/wishlist'
     | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -270,11 +310,15 @@ export interface FileRouteTypes {
     | '/linen'
     | '/new-arrivals'
     | '/office-wear'
+    | '/order-success'
     | '/party-wear'
+    | '/payment'
+    | '/payment-failed'
     | '/sale'
     | '/silk-sarees'
     | '/trending'
     | '/wedding'
+    | '/wishlist'
     | '/product/$id'
   id:
     | '__root__'
@@ -295,11 +339,15 @@ export interface FileRouteTypes {
     | '/linen'
     | '/new-arrivals'
     | '/office-wear'
+    | '/order-success'
     | '/party-wear'
+    | '/payment'
+    | '/payment-failed'
     | '/sale'
     | '/silk-sarees'
     | '/trending'
     | '/wedding'
+    | '/wishlist'
     | '/product/$id'
   fileRoutesById: FileRoutesById
 }
@@ -321,11 +369,15 @@ export interface RootRouteChildren {
   LinenRoute: typeof LinenRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
   OfficeWearRoute: typeof OfficeWearRoute
+  OrderSuccessRoute: typeof OrderSuccessRoute
   PartyWearRoute: typeof PartyWearRoute
+  PaymentRoute: typeof PaymentRoute
+  PaymentFailedRoute: typeof PaymentFailedRoute
   SaleRoute: typeof SaleRoute
   SilkSareesRoute: typeof SilkSareesRoute
   TrendingRoute: typeof TrendingRoute
   WeddingRoute: typeof WeddingRoute
+  WishlistRoute: typeof WishlistRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
@@ -450,11 +502,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OfficeWearRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/order-success': {
+      id: '/order-success'
+      path: '/order-success'
+      fullPath: '/order-success'
+      preLoaderRoute: typeof OrderSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/party-wear': {
       id: '/party-wear'
       path: '/party-wear'
       fullPath: '/party-wear'
       preLoaderRoute: typeof PartyWearRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment': {
+      id: '/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof PaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-failed': {
+      id: '/payment-failed'
+      path: '/payment-failed'
+      fullPath: '/payment-failed'
+      preLoaderRoute: typeof PaymentFailedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sale': {
@@ -485,6 +558,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WeddingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wishlist': {
+      id: '/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
@@ -513,11 +593,15 @@ const rootRouteChildren: RootRouteChildren = {
   LinenRoute: LinenRoute,
   NewArrivalsRoute: NewArrivalsRoute,
   OfficeWearRoute: OfficeWearRoute,
+  OrderSuccessRoute: OrderSuccessRoute,
   PartyWearRoute: PartyWearRoute,
+  PaymentRoute: PaymentRoute,
+  PaymentFailedRoute: PaymentFailedRoute,
   SaleRoute: SaleRoute,
   SilkSareesRoute: SilkSareesRoute,
   TrendingRoute: TrendingRoute,
   WeddingRoute: WeddingRoute,
+  WishlistRoute: WishlistRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport

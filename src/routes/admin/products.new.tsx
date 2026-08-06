@@ -11,6 +11,7 @@ export const Route = createFileRoute("/admin/products/new")({
 function AddProduct() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -28,6 +29,36 @@ function AddProduct() {
     e.preventDefault();
     setLoading(true);
 
+    let uploadedUrls: string[] = [];
+
+    // Upload image files if any
+    if (imageFiles.length > 0) {
+      for (const file of imageFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          console.error('Error uploading image:', uploadError);
+          alert('Failed to upload image: ' + uploadError.message);
+          setLoading(false);
+          return;
+        }
+
+        const { data } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        if (data?.publicUrl) {
+          uploadedUrls.push(data.publicUrl);
+        }
+      }
+    }
+
     const { error } = await supabase.from("products").insert({
       name: formData.name,
       slug: formData.slug || formData.name.toLowerCase().replace(/[\s_]+/g, "-"),
@@ -38,7 +69,7 @@ function AddProduct() {
       color: formData.color,
       size: formData.size,
       stock: parseInt(formData.stock, 10),
-      images: formData.images.split(",").map(url => url.trim()).filter(Boolean),
+      images: uploadedUrls.length > 0 ? uploadedUrls : formData.images.split(",").map(url => url.trim()).filter(Boolean),
     });
 
     setLoading(false);
@@ -144,13 +175,30 @@ function AddProduct() {
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium">Image URLs (comma separated)</label>
+            <label className="text-sm font-medium">Product Images (Upload)</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setImageFiles(Array.from(e.target.files));
+                }
+              }}
+            />
+            {imageFiles.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">{imageFiles.length} file(s) selected.</p>
+            )}
+            
+            <p className="text-sm font-medium mt-4">OR Image URLs (comma separated)</p>
             <input
               type="text"
               className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
               value={formData.images}
               onChange={(e) => setFormData({ ...formData, images: e.target.value })}
               placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+              disabled={imageFiles.length > 0}
             />
           </div>
 

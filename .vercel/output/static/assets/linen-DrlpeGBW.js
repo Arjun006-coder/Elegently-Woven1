@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-cvnAX2Ol.js";import{n as t}from"./index-DdtMIEGi.js";var n=e(),r=()=>(0,n.jsx)(t,{slug:`linen`});export{r as component};

@@ -7,9 +7,9 @@ export const Route = createFileRoute("/payment-failed")({
   component: PaymentFailed,
   head: () => ({
     meta: [
-      { title: "Payment Failed — Meera Silks" },
+      { title: "Payment Failed — ElegantlyWoven" },
       { name: "description", content: "Your payment could not be completed. Retry with another method or contact support." },
-      { property: "og:title", content: "Payment Failed — Meera Silks" },
+      { property: "og:title", content: "Payment Failed — ElegantlyWoven" },
       { property: "og:description", content: "Retry your payment or reach our support team." },
       { property: "og:url", content: "/payment-failed" },
       { name: "robots", content: "noindex" },

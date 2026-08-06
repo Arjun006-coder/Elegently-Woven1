@@ -22,6 +22,7 @@ import { ProductCard } from "@/components/shop/ProductCard";
 import { SectionHeading, Stars, Eyebrow } from "@/components/shop/Bits";
 import { byId, discount, inr, products, testimonials } from "@/lib/data";
 import { useShop } from "@/lib/store";
+import { getLiveProductBySlug } from "@/lib/api/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -32,21 +33,40 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/product/$id")({
-  loader: ({ params }) => {
-    const product = byId(params.id);
-    if (!product) throw notFound();
+  loader: async ({ params }) => {
+    let product = await getLiveProductBySlug(params.id);
+    
+    // If not in database, fallback to the placeholder mock data for now
+    if (!product) {
+      const mockProduct = byId(params.id);
+      if (!mockProduct) throw notFound();
+      product = mockProduct;
+    } else {
+      // Merge live product with required UI fields to prevent crashes
+      product = {
+        ...byId("ms-100482")!, // default fallback properties
+        ...product,
+        mrp: product.originalPrice || product.price * 1.2,
+        rating: 4.8,
+        reviews: 124,
+        stock: 10,
+        weave: "Live Product",
+        fabric: "Pure Silk",
+      };
+    }
+    
     return { product };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Saree unavailable — Meera Silks" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Saree unavailable — ElegantlyWoven" }, { name: "robots", content: "noindex" }] };
     }
     const p = loaderData.product;
     return {
       meta: [
-        { title: `${p.name} — ${p.weave} Saree | Meera Silks` },
+        { title: `${p.name} — ${p.weave} Saree | ElegantlyWoven` },
         { name: "description", content: p.description.slice(0, 155) },
-        { property: "og:title", content: `${p.name} — Meera Silks` },
+        { property: "og:title", content: `${p.name} — ElegantlyWoven` },
         { property: "og:description", content: p.description.slice(0, 155) },
         { property: "og:type", content: "product" },
         { property: "og:url", content: `/product/${params.id}` },
@@ -178,7 +198,15 @@ function ProductPage() {
             <span>·</span>
             <a href="#reviews" className="hover:text-foreground">{product.reviews} reviews</a>
             <span>·</span>
-            <span>{product.stock > 0 ? `${product.stock} in stock` : "Sold out"}</span>
+            {product.stock > 0 ? (
+              product.stock < 5 ? (
+                <span className="text-red-500 font-medium">Only {product.stock} left in stock — order soon!</span>
+              ) : (
+                <span>{product.stock} in stock</span>
+              )
+            ) : (
+              <span className="text-red-600 font-bold">Sold out</span>
+            )}
           </div>
 
           <div className="mt-6 flex flex-wrap items-baseline gap-3">
@@ -307,7 +335,7 @@ function ProductPage() {
                 <li className="flex items-center gap-2"><RotateCcw className="h-3.5 w-3.5 text-gold" /> 7-day return · 15-day replacement</li>
                 <li className="flex items-center gap-2"><CreditCard className="h-3.5 w-3.5 text-gold" /> EMI from {inr(Math.round(product.price / 6))}/mo · 6 months no cost</li>
                 <li className="flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5 text-gold" /> Silk Mark certified · loom certificate included</li>
-                <li className="flex items-center gap-2"><Store className="h-3.5 w-3.5 text-gold" /> Sold by Meera Silks Retail LLP · 4.8★ seller</li>
+                <li className="flex items-center gap-2"><Store className="h-3.5 w-3.5 text-gold" /> Sold by ElegantlyWoven Retail LLP · 4.8★ seller</li>
               </ul>
             </div>
           </div>

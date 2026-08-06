@@ -16,9 +16,9 @@ export const Route = createFileRoute("/checkout")({
   component: Checkout,
   head: () => ({
     meta: [
-      { title: "Secure Checkout — Meera Silks" },
+      { title: "Secure Checkout — ElegantlyWoven" },
       { name: "description", content: "Confirm your delivery address, slot and gifting options before payment." },
-      { property: "og:title", content: "Secure Checkout — Meera Silks" },
+      { property: "og:title", content: "Secure Checkout — ElegantlyWoven" },
       { property: "og:description", content: "Confirm delivery details for your saree order." },
       { property: "og:url", content: "/checkout" },
       { name: "robots", content: "noindex" },
@@ -82,12 +82,16 @@ function Checkout() {
               {guest ? (
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <div>
-                    <Label htmlFor="gname">Full name</Label>
+                    <Label htmlFor="gname">Full name *</Label>
                     <Input id="gname" required className="mt-2" />
                   </div>
                   <div>
-                    <Label htmlFor="gmail">Email</Label>
+                    <Label htmlFor="gmail">Email *</Label>
                     <Input id="gmail" type="email" required className="mt-2" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label htmlFor="gphone">Phone number *</Label>
+                    <Input id="gphone" type="tel" required placeholder="Required for delivery updates" className="mt-2" />
                   </div>
                 </div>
               ) : (
@@ -137,24 +141,24 @@ function Checkout() {
                     Map location picker placeholder
                   </div>
                   <div>
-                    <Label htmlFor="fn">Full name</Label>
-                    <Input id="fn" className="mt-2" />
+                    <Label htmlFor="fn">Full name *</Label>
+                    <Input id="fn" required className="mt-2" />
                   </div>
                   <div>
-                    <Label htmlFor="ph">Phone</Label>
-                    <Input id="ph" className="mt-2" />
+                    <Label htmlFor="ph">Phone number *</Label>
+                    <Input id="ph" type="tel" required className="mt-2" />
                   </div>
                   <div className="sm:col-span-2">
-                    <Label htmlFor="st">Street address</Label>
-                    <Input id="st" className="mt-2" />
+                    <Label htmlFor="st">Street address *</Label>
+                    <Input id="st" required className="mt-2" />
                   </div>
                   <div>
-                    <Label htmlFor="pc">Pincode</Label>
-                    <Input id="pc" maxLength={6} className="mt-2" />
+                    <Label htmlFor="pc">Pincode *</Label>
+                    <Input id="pc" required maxLength={6} className="mt-2" />
                   </div>
                   <div>
-                    <Label htmlFor="ct">City</Label>
-                    <Input id="ct" className="mt-2" />
+                    <Label htmlFor="ct">City *</Label>
+                    <Input id="ct" required className="mt-2" />
                   </div>
                   <Button type="button" className="rounded-full sm:col-span-2" onClick={() => setAdding(false)}>
                     Save address

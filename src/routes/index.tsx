@@ -19,19 +19,24 @@ import { SectionHeading, Eyebrow, Stars } from "@/components/shop/Bits";
 import { BRAND, collections, designers, gallery, images, products, stores, testimonials } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getLiveProducts } from "@/lib/api/products";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const liveProducts = await getLiveProducts(12);
+    return { liveProducts };
+  },
   component: Home,
   head: () => ({
     meta: [
-      { title: "Meera Silks — Luxury Handloom Sarees from Bengaluru" },
+      { title: "ElegantlyWoven — Luxury Handloom Sarees from Bengaluru" },
       {
         name: "description",
         content:
-          "Shop certified Kanjivaram, Banarasi, silk, cotton and linen sarees at Meera Silks. Weaver-direct pricing, bridal styling and pan-India delivery in 2–4 days.",
+          "Shop certified Kanjivaram, Banarasi, silk, cotton and linen sarees at ElegantlyWoven. Weaver-direct pricing, bridal styling and pan-India delivery in 2–4 days.",
       },
-      { property: "og:title", content: "Meera Silks — Luxury Handloom Sarees" },
+      { property: "og:title", content: "ElegantlyWoven — Luxury Handloom Sarees" },
       {
         property: "og:description",
         content: "Handpicked heirloom sarees from Kanchipuram, Banaras and beyond.",
@@ -211,6 +216,7 @@ function ProductRow({
 }
 
 function Home() {
+  const { liveProducts } = Route.useLoaderData();
   const featured = collections.filter((c) =>
     ["bridal", "kanjivaram", "banarasi", "linen"].includes(c.slug),
   );
@@ -278,7 +284,7 @@ function Home() {
         </div>
       </section>
 
-      <ProductRow eyebrow="Just In" title="Latest arrivals" to="/new-arrivals" items={products.slice(0, 4)} />
+      <ProductRow eyebrow="Just In" title="Latest arrivals" to="/new-arrivals" items={liveProducts.slice(0, 4)} />
 
       <ParallaxBanner
         image={images.hero2}
@@ -289,7 +295,7 @@ function Home() {
         cta="Shop festival"
       />
 
-      <ProductRow eyebrow="Signature" title="Best sellers" to="/best-sellers" items={products.slice(8, 12)} />
+      <ProductRow eyebrow="Signature" title="Best sellers" to="/best-sellers" items={liveProducts.slice(4, 8)} />
 
       <ParallaxBanner
         image={images.hero3}
@@ -300,7 +306,7 @@ function Home() {
         cta="Book an appointment"
       />
 
-      <ProductRow eyebrow="Most Loved" title="Trending now" to="/trending" items={products.slice(16, 20)} />
+      <ProductRow eyebrow="Most Loved" title="Trending now" to="/trending" items={liveProducts.slice(8, 12)} />
 
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2">
         <img src={images.story} alt="Folded silk sarees" loading="lazy" className="rounded-3xl shadow-soft" />
@@ -408,7 +414,7 @@ function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8">
-        <SectionHeading eyebrow="@meerasilks" title="From our Instagram" align="center" />
+        <SectionHeading eyebrow="@elegantlywoven" title="From our Instagram" align="center" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
           {gallery.map((g, i) => (
             <a key={i} href="#" className="group relative overflow-hidden rounded-xl">

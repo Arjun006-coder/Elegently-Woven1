@@ -12,13 +12,14 @@ import p7 from "@/assets/p7.jpg";
 import p8 from "@/assets/p8.jpg";
 
 export const BRAND = {
-  name: "Meera Silks",
-  tagline: "Handpicked heirloom sarees from Kanchipuram, Banaras & beyond",
-  phone: "+91 98450 21234",
-  whatsapp: "+91 98450 21234",
-  email: "care@meerasilks.in",
-  address: "42, Rangoli Street, Basavanagudi, Bengaluru 560004",
-  hours: "Mon – Sat · 10:30 AM to 8:30 PM",
+  name: "ElegantlyWoven",
+  tagline: "Curated women's fashion, delivered with elegance",
+  phone: "+91 98000 00000",
+  whatsapp: "+91 98000 00000",
+  email: "hello@elegantlywoven.com",
+  address: "LumaScale, India",
+  hours: "Mon – Sat · 10:00 AM to 8:00 PM",
+  poweredBy: "LumaScale",
 };
 
 export const images = { hero1, hero2, hero3, story };
@@ -115,10 +116,10 @@ export type CollectionMeta = {
 };
 
 export const collections: CollectionMeta[] = [
-  { slug: "collections", title: "All Collections", eyebrow: "The House", description: "Every weave in the Meera Silks atelier — from six-yard everyday cottons to heirloom bridal Kanjivarams.", image: hero1 },
+  { slug: "collections", title: "All Collections", eyebrow: "The House", description: "Every weave in the ElegantlyWoven atelier — from six-yard everyday cottons to heirloom bridal Kanjivarams.", image: hero1 },
   { slug: "categories", title: "Shop by Category", eyebrow: "Browse", description: "Find your saree by weave, fabric and occasion.", image: hero2 },
   { slug: "new-arrivals", title: "New Arrivals", eyebrow: "Just In", description: "Freshly loomed drapes, added to the atelier this fortnight.", image: hero2, filter: (p) => p.badge === "New" || p.rating > 4.5 },
-  { slug: "trending", title: "Trending Now", eyebrow: "Most Loved", description: "What Bengaluru is draping this season.", image: hero1, filter: (p) => p.badge === "Trending" || p.reviews > 200 },
+  { slug: "trending", title: "Trending Now", eyebrow: "Most Loved", description: "What India is draping this season.", image: hero1, filter: (p) => p.badge === "Trending" || p.reviews > 200 },
   { slug: "best-sellers", title: "Best Sellers", eyebrow: "Signature", description: "Our most requested weaves, reordered season after season.", image: hero3, filter: (p) => p.badge === "Bestseller" || p.reviews > 260 },
   { slug: "festival", title: "Festival Collection", eyebrow: "Utsav", description: "Luminous silks for Diwali, Onam, Pongal and Navratri.", image: hero2, filter: (p) => p.occasion === "Festival" },
   { slug: "wedding", title: "Wedding Collection", eyebrow: "Shubh Vivah", description: "For the sangeet, the muhurtham and every ritual in between.", image: hero3, filter: (p) => p.occasion === "Wedding" },
@@ -184,16 +185,16 @@ export const filterGroups = [
 ];
 
 export const testimonials = [
-  { name: "Lakshmi Narayan", city: "Chennai", text: "My muhurtham Kanjivaram came with the weaver's certificate and a hand-written note. The zari is unbelievably fine.", rating: 5 },
-  { name: "Ananya Rao", city: "Bengaluru", text: "I have bought eleven cottons from Meera Silks. They hold colour after twenty washes.", rating: 5 },
-  { name: "Fatima Sheikh", city: "Hyderabad", text: "The stylist on WhatsApp helped me pick a Banarasi within my budget. Delivered in two days.", rating: 4.5 },
-  { name: "Divya Menon", city: "Kochi", text: "Packaging felt like a gift box. My mother thought I spent twice as much.", rating: 5 },
+  { name: "Priya Sharma", city: "Mumbai", text: "My muhurtham Kanjivaram came beautifully packaged with the weaver's certificate. The zari is unbelievably fine.", rating: 5 },
+  { name: "Ananya Rao", city: "Bengaluru", text: "I have bought eleven cottons from ElegantlyWoven. They hold colour after twenty washes.", rating: 5 },
+  { name: "Fatima Sheikh", city: "Hyderabad", text: "The style advisor helped me pick a Banarasi within my budget. Delivered in two days — amazing!", rating: 4.5 },
+  { name: "Divya Menon", city: "Kochi", text: "Packaging felt like a luxury gift box. My mother thought I spent twice as much.", rating: 5 },
 ];
 
 export const stores = [
-  { city: "Bengaluru", address: "42, Rangoli Street, Basavanagudi", phone: "+91 98450 21234" },
-  { city: "Mysuru", address: "18, Sayyaji Rao Road, Devaraja Mohalla", phone: "+91 98450 21235" },
-  { city: "Chennai", address: "7, North Mada Street, Mylapore", phone: "+91 98450 21236" },
+  { city: "Mumbai", address: "14, Linking Road, Bandra West", phone: "+91 98000 00001" },
+  { city: "Delhi", address: "27, Connaught Place, New Delhi", phone: "+91 98000 00002" },
+  { city: "Bengaluru", address: "8, UB City Mall, Vittal Mallya Road", phone: "+91 98000 00003" },
 ];
 
 export const designers = [
@@ -204,10 +205,10 @@ export const designers = [
 ];
 
 export const orders = [
-  { id: "MS-100482", date: "18 Jul 2026", total: 42500, status: "Out for Delivery", items: 1, product: products[0] },
-  { id: "MS-100455", date: "02 Jul 2026", total: 34390, status: "Delivered", items: 2, product: products[3] },
-  { id: "MS-100411", date: "21 Jun 2026", total: 18600, status: "Delivered", items: 1, product: products[2] },
-  { id: "MS-100380", date: "09 Jun 2026", total: 6490, status: "Returned", items: 1, product: products[5] },
+  { id: "EW-100482", date: "18 Jul 2026", total: 42500, status: "Out for Delivery", items: 1, product: products[0] },
+  { id: "EW-100455", date: "02 Jul 2026", total: 34390, status: "Delivered", items: 2, product: products[3] },
+  { id: "EW-100411", date: "21 Jun 2026", total: 18600, status: "Delivered", items: 1, product: products[2] },
+  { id: "EW-100380", date: "09 Jun 2026", total: 6490, status: "Returned", items: 1, product: products[5] },
 ];
 
 export const inr = (n: number) =>
@@ -221,5 +222,5 @@ export const faqs = [
   { q: "What is the delivery time?", a: "Metro cities receive orders in 2–3 days; the rest of India in 4–6 days. Bridal orders ship in 7 days after fitting confirmation." },
   { q: "Can I return a saree?", a: "Unworn sarees with tags can be returned within 7 days. Custom-stitched and bridal pieces are exchange-only." },
   { q: "Do you ship internationally?", a: "We ship to 26 countries via DHL. Duties are calculated at checkout." },
-  { q: "Is Cash on Delivery available?", a: "COD is available on orders up to ₹25,000 across 14,000 pincodes." },
+  { q: "Is Cash on Delivery available?", a: "COD is available on orders up to ₹25,000 across 14,000+ pincodes." },
 ];

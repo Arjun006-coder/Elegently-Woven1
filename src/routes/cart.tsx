@@ -15,9 +15,9 @@ export const Route = createFileRoute("/cart")({
   component: CartPage,
   head: () => ({
     meta: [
-      { title: "Your Shopping Bag — Meera Silks" },
+      { title: "Your Shopping Bag — ElegantlyWoven" },
       { name: "description", content: "Review the sarees in your bag, apply a coupon and proceed to secure checkout." },
-      { property: "og:title", content: "Your Shopping Bag — Meera Silks" },
+      { property: "og:title", content: "Your Shopping Bag — ElegantlyWoven" },
       { property: "og:description", content: "Review your saree selection before checkout." },
       { property: "og:url", content: "/cart" },
       { name: "robots", content: "noindex" },
@@ -138,11 +138,13 @@ function CartPage() {
                 className="mt-5 flex gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (coupon.trim().toUpperCase() === "MEERA15") {
-                    setApplied({ code: "MEERA15", value: Math.round(subtotal * 0.15) });
-                    toast.success("Coupon applied — 15% off");
+                  if (coupon.trim().toUpperCase() === "LUMA15") {
+                    setApplied({ code: "LUMA15", value: Math.round(subtotal * 0.15) });
+                    toast.success("Coupon applied!", {
+                      description: "15% off applied successfully.",
+                    });
                   } else {
-                    toast.error("Invalid coupon", { description: "Try MEERA15" });
+                    toast.error("Invalid coupon", { description: "Try LUMA15" });
                   }
                 }}
               >

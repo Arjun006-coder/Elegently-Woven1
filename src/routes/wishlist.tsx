@@ -11,10 +11,10 @@ export const Route = createFileRoute("/wishlist")({
   component: WishlistPage,
   head: () => ({
     meta: [
-      { title: "Your Wishlist — Meera Silks" },
+      { title: "Your Wishlist — ElegantlyWoven" },
       { name: "description", content: "The sarees you saved for later, ready to move into your bag." },
-      { property: "og:title", content: "Your Wishlist — Meera Silks" },
-      { property: "og:description", content: "Sarees you saved at Meera Silks." },
+      { property: "og:title", content: "Your Wishlist — ElegantlyWoven" },
+      { property: "og:description", content: "Sarees you saved at ElegantlyWoven." },
       { property: "og:url", content: "/wishlist" },
       { name: "robots", content: "noindex" },
     ],

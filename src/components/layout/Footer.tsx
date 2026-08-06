@@ -112,7 +112,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-4 border-t border-border/70 pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {BRAND.name}. Woven in India.</p>
+          <p>© {new Date().getFullYear()} {BRAND.name} by {BRAND.poweredBy}. All rights reserved.</p>
           <div className="flex flex-wrap gap-5">
             <a href={`mailto:${BRAND.email}`} className="flex items-center gap-1.5 hover:text-foreground">
               <Mail className="h-3.5 w-3.5" /> {BRAND.email}

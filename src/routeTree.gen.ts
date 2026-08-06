@@ -10,6 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BanarasiRouteImport } from './routes/banarasi'
 import { Route as BestSellersRouteImport } from './routes/best-sellers'
 import { Route as BridalRouteImport } from './routes/bridal'
@@ -32,14 +35,40 @@ import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as SaleRouteImport } from './routes/sale'
 import { Route as SilkSareesRouteImport } from './routes/silk-sarees'
+import { Route as TrackOrderRouteImport } from './routes/track-order'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as WeddingRouteImport } from './routes/wedding'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as AccountIndexRouteImport } from './routes/account/index'
+import { Route as AccountAddressesRouteImport } from './routes/account/addresses'
+import { Route as AccountNotificationsRouteImport } from './routes/account/notifications'
+import { Route as AccountOrdersRouteImport } from './routes/account/orders'
+import { Route as AccountPaymentsRouteImport } from './routes/account/payments'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as AdminProductsIndexRouteImport } from './routes/admin/products.index'
+import { Route as AdminProductsNewRouteImport } from './routes/admin/products.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BanarasiRoute = BanarasiRouteImport.update({
@@ -152,6 +181,11 @@ const SilkSareesRoute = SilkSareesRouteImport.update({
   path: '/silk-sarees',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrackOrderRoute = TrackOrderRouteImport.update({
+  id: '/track-order',
+  path: '/track-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrendingRoute = TrendingRouteImport.update({
   id: '/trending',
   path: '/trending',
@@ -167,14 +201,67 @@ const WishlistRoute = WishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountIndexRoute = AccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountAddressesRoute = AccountAddressesRouteImport.update({
+  id: '/addresses',
+  path: '/addresses',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountNotificationsRoute = AccountNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountOrdersRoute = AccountOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountPaymentsRoute = AccountPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
+} as any)
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminProductsIndexRoute = AdminProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductsNewRoute = AdminProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
@@ -197,13 +284,25 @@ export interface FileRoutesByFullPath {
   '/payment-failed': typeof PaymentFailedRoute
   '/sale': typeof SaleRoute
   '/silk-sarees': typeof SilkSareesRoute
+  '/track-order': typeof TrackOrderRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
   '/wishlist': typeof WishlistRoute
+  '/account/addresses': typeof AccountAddressesRoute
+  '/account/notifications': typeof AccountNotificationsRoute
+  '/account/orders': typeof AccountOrdersRoute
+  '/account/payments': typeof AccountPaymentsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
+  '/account/': typeof AccountIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/products/new': typeof AdminProductsNewRoute
+  '/admin/products/': typeof AdminProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRouteWithChildren
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
@@ -226,14 +325,28 @@ export interface FileRoutesByTo {
   '/payment-failed': typeof PaymentFailedRoute
   '/sale': typeof SaleRoute
   '/silk-sarees': typeof SilkSareesRoute
+  '/track-order': typeof TrackOrderRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
   '/wishlist': typeof WishlistRoute
+  '/account/addresses': typeof AccountAddressesRoute
+  '/account/notifications': typeof AccountNotificationsRoute
+  '/account/orders': typeof AccountOrdersRoute
+  '/account/payments': typeof AccountPaymentsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
+  '/account': typeof AccountIndexRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/products/new': typeof AdminProductsNewRoute
+  '/admin/products': typeof AdminProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
@@ -256,15 +369,29 @@ export interface FileRoutesById {
   '/payment-failed': typeof PaymentFailedRoute
   '/sale': typeof SaleRoute
   '/silk-sarees': typeof SilkSareesRoute
+  '/track-order': typeof TrackOrderRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
   '/wishlist': typeof WishlistRoute
+  '/account/addresses': typeof AccountAddressesRoute
+  '/account/notifications': typeof AccountNotificationsRoute
+  '/account/orders': typeof AccountOrdersRoute
+  '/account/payments': typeof AccountPaymentsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
+  '/account/': typeof AccountIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/products/new': typeof AdminProductsNewRoute
+  '/admin/products/': typeof AdminProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
+    | '/admin'
+    | '/auth'
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
@@ -287,13 +414,25 @@ export interface FileRouteTypes {
     | '/payment-failed'
     | '/sale'
     | '/silk-sarees'
+    | '/track-order'
     | '/trending'
     | '/wedding'
     | '/wishlist'
+    | '/account/addresses'
+    | '/account/notifications'
+    | '/account/orders'
+    | '/account/payments'
+    | '/admin/settings'
+    | '/auth/callback'
     | '/product/$id'
+    | '/account/'
+    | '/admin/'
+    | '/admin/products/new'
+    | '/admin/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
@@ -316,13 +455,27 @@ export interface FileRouteTypes {
     | '/payment-failed'
     | '/sale'
     | '/silk-sarees'
+    | '/track-order'
     | '/trending'
     | '/wedding'
     | '/wishlist'
+    | '/account/addresses'
+    | '/account/notifications'
+    | '/account/orders'
+    | '/account/payments'
+    | '/admin/settings'
+    | '/auth/callback'
     | '/product/$id'
+    | '/account'
+    | '/admin'
+    | '/admin/products/new'
+    | '/admin/products'
   id:
     | '__root__'
     | '/'
+    | '/account'
+    | '/admin'
+    | '/auth'
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
@@ -345,14 +498,28 @@ export interface FileRouteTypes {
     | '/payment-failed'
     | '/sale'
     | '/silk-sarees'
+    | '/track-order'
     | '/trending'
     | '/wedding'
     | '/wishlist'
+    | '/account/addresses'
+    | '/account/notifications'
+    | '/account/orders'
+    | '/account/payments'
+    | '/admin/settings'
+    | '/auth/callback'
     | '/product/$id'
+    | '/account/'
+    | '/admin/'
+    | '/admin/products/new'
+    | '/admin/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
   BanarasiRoute: typeof BanarasiRoute
   BestSellersRoute: typeof BestSellersRoute
   BridalRoute: typeof BridalRoute
@@ -375,6 +542,7 @@ export interface RootRouteChildren {
   PaymentFailedRoute: typeof PaymentFailedRoute
   SaleRoute: typeof SaleRoute
   SilkSareesRoute: typeof SilkSareesRoute
+  TrackOrderRoute: typeof TrackOrderRoute
   TrendingRoute: typeof TrendingRoute
   WeddingRoute: typeof WeddingRoute
   WishlistRoute: typeof WishlistRoute
@@ -388,6 +556,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/banarasi': {
@@ -544,6 +733,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SilkSareesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/track-order': {
+      id: '/track-order'
+      path: '/track-order'
+      fullPath: '/track-order'
+      preLoaderRoute: typeof TrackOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trending': {
       id: '/trending'
       path: '/trending'
@@ -565,6 +761,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WishlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/': {
+      id: '/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/addresses': {
+      id: '/account/addresses'
+      path: '/addresses'
+      fullPath: '/account/addresses'
+      preLoaderRoute: typeof AccountAddressesRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/notifications': {
+      id: '/account/notifications'
+      path: '/notifications'
+      fullPath: '/account/notifications'
+      preLoaderRoute: typeof AccountNotificationsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/orders': {
+      id: '/account/orders'
+      path: '/orders'
+      fullPath: '/account/orders'
+      preLoaderRoute: typeof AccountOrdersRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/payments': {
+      id: '/account/payments'
+      path: '/payments'
+      fullPath: '/account/payments'
+      preLoaderRoute: typeof AccountPaymentsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/product/$id': {
       id: '/product/$id'
       path: '/product/$id'
@@ -572,11 +824,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/products/': {
+      id: '/admin/products/'
+      path: '/products'
+      fullPath: '/admin/products/'
+      preLoaderRoute: typeof AdminProductsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/products/new': {
+      id: '/admin/products/new'
+      path: '/products/new'
+      fullPath: '/admin/products/new'
+      preLoaderRoute: typeof AdminProductsNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AccountRouteChildren {
+  AccountAddressesRoute: typeof AccountAddressesRoute
+  AccountNotificationsRoute: typeof AccountNotificationsRoute
+  AccountOrdersRoute: typeof AccountOrdersRoute
+  AccountPaymentsRoute: typeof AccountPaymentsRoute
+  AccountIndexRoute: typeof AccountIndexRoute
+}
+
+const AccountRouteChildren: AccountRouteChildren = {
+  AccountAddressesRoute: AccountAddressesRoute,
+  AccountNotificationsRoute: AccountNotificationsRoute,
+  AccountOrdersRoute: AccountOrdersRoute,
+  AccountPaymentsRoute: AccountPaymentsRoute,
+  AccountIndexRoute: AccountIndexRoute,
+}
+
+const AccountRouteWithChildren =
+  AccountRoute._addFileChildren(AccountRouteChildren)
+
+interface AdminRouteChildren {
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminProductsNewRoute: typeof AdminProductsNewRoute
+  AdminProductsIndexRoute: typeof AdminProductsIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminProductsNewRoute: AdminProductsNewRoute,
+  AdminProductsIndexRoute: AdminProductsIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
   BanarasiRoute: BanarasiRoute,
   BestSellersRoute: BestSellersRoute,
   BridalRoute: BridalRoute,
@@ -599,6 +913,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentFailedRoute: PaymentFailedRoute,
   SaleRoute: SaleRoute,
   SilkSareesRoute: SilkSareesRoute,
+  TrackOrderRoute: TrackOrderRoute,
   TrendingRoute: TrendingRoute,
   WeddingRoute: WeddingRoute,
   WishlistRoute: WishlistRoute,
@@ -607,3 +922,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

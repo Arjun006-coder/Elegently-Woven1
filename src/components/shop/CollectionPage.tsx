@@ -2,12 +2,19 @@ import { Link } from "@tanstack/react-router";
 import { PageHero } from "./Bits";
 import { CollectionView } from "./CollectionView";
 import { SiteLayout } from "@/components/layout/SiteLayout";
-import { collectionBySlug, products } from "@/lib/data";
+import { collectionBySlug } from "@/lib/data";
+import { useShop } from "@/lib/store";
 
 export function CollectionPage({ slug }: { slug: string }) {
   const meta = collectionBySlug(slug);
-  const items = meta?.filter ? products.filter(meta.filter) : products;
-  const list = items.length ? items : products;
+  const { liveProducts } = useShop();
+  
+  // Custom filter logic since meta.filter is designed for mock data structure
+  let items = liveProducts;
+  if (slug !== 'collections') {
+    items = liveProducts.filter(p => p.category?.toLowerCase() === slug.toLowerCase() || p.slug?.includes(slug));
+  }
+  const list = items;
 
   return (
     <SiteLayout>
@@ -34,8 +41,8 @@ export function CollectionPage({ slug }: { slug: string }) {
 
 export function collectionHead(slug: string) {
   const meta = collectionBySlug(slug);
-  const title = `${meta?.title ?? slug} — Meera Silks`;
-  const description = meta?.description ?? "Handloom sarees at Meera Silks.";
+  const title = `${meta?.title ?? slug} — ElegantlyWoven`;
+  const description = meta?.description ?? "Handloom sarees at ElegantlyWoven.";
   return () => ({
     meta: [
       { title },

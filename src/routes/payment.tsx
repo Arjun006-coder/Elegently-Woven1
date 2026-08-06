@@ -14,9 +14,9 @@ export const Route = createFileRoute("/payment")({
   component: PaymentPage,
   head: () => ({
     meta: [
-      { title: "Payment — Meera Silks" },
+      { title: "Payment — ElegantlyWoven" },
       { name: "description", content: "Pay securely by UPI, card, netbanking, wallet or cash on delivery." },
-      { property: "og:title", content: "Payment — Meera Silks" },
+      { property: "og:title", content: "Payment — ElegantlyWoven" },
       { property: "og:description", content: "Secure payment options for your saree order." },
       { property: "og:url", content: "/payment" },
       { name: "robots", content: "noindex" },

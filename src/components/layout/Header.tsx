@@ -12,9 +12,13 @@ import {
   Globe,
   Headphones,
   ChevronDown,
+  LogOut,
 } from "lucide-react";
 import { BRAND, megaMenu } from "@/lib/data";
 import { useShop, useTheme } from "@/lib/store";
+import { supabase } from "@/lib/supabase";
+import { signOut, getProfile } from "@/lib/auth";
+import type { Session } from "@supabase/supabase-js";
 import { SearchDialog } from "./SearchDialog";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -27,18 +31,54 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-const notifications = [
-  { title: "Order MS-100482 is out for delivery", time: "2h ago" },
-  { title: "Festival Collection is live — early access", time: "1d ago" },
-  { title: "Your wishlist item is back in stock", time: "3d ago" },
-];
+// Notifications are now fetched live
 
 export function Header() {
   const { cartCount, wishlist } = useShop();
+  const [session, setSession] = useState<Session | null>(null);
   const { theme, toggle } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [lang, setLang] = useState("EN");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session);
+      if (data.session) {
+        const profile = await getProfile(data.session.user.id);
+        setIsAdmin(profile?.role === "admin" || profile?.role === "super_admin");
+        
+        // Fetch notifications
+        const { data: notifs } = await supabase
+          .from("notifications")
+          .select("*")
+          .eq("user_id", data.session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(3);
+          
+        if (notifs) {
+          setNotifications(notifs);
+          setUnreadCount(notifs.filter(n => !n.is_read).length);
+        }
+      }
+    };
+    checkSession();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
+      setSession(session);
+      if (session) {
+        const profile = await getProfile(session.user.id);
+        setIsAdmin(profile?.role === "admin" || profile?.role === "super_admin");
+      } else {
+        setIsAdmin(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -62,11 +102,25 @@ export function Header() {
     <>
       <div className="bg-primary text-primary-foreground">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-2 text-[11px] tracking-[0.18em] uppercase sm:px-8">
-          <p className="truncate">Flat 15% off your first drape · code MEERA15</p>
+          <p className="truncate">Flat 15% off your first order · code WOVEN15</p>
           <div className="hidden items-center gap-6 sm:flex">
             <Link to="/track-order" className="hover:text-gold">
               Track order
             </Link>
+            {session ? (
+              <div className="flex items-center gap-4">
+                <Link to="/account" className="flex items-center gap-1.5 hover:text-gold">
+                  Account
+                </Link>
+                <button onClick={signOut} className="flex items-center gap-1.5 hover:text-gold" title="Sign Out">
+                  <LogOut className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <Link to="/auth" className="flex items-center gap-1.5 hover:text-gold">
+                <User className="h-3 w-3" /> Sign In
+              </Link>
+            )}
             <Link to="/contact" className="flex items-center gap-1.5 hover:text-gold">
               <Headphones className="h-3 w-3" /> Support
             </Link>
@@ -180,17 +234,25 @@ export function Header() {
                 className="relative hidden h-9 w-9 place-items-center rounded-full hover:bg-secondary sm:grid"
               >
                 <Bell className="h-[18px] w-[18px]" />
-                <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-primary" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-primary" />
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-72">
                 <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {notifications.map((n) => (
-                  <DropdownMenuItem key={n.title} className="flex-col items-start gap-1">
-                    <span className="text-sm">{n.title}</span>
-                    <span className="text-xs text-muted-foreground">{n.time}</span>
-                  </DropdownMenuItem>
-                ))}
+                {notifications.length > 0 ? (
+                  notifications.map((n) => (
+                    <DropdownMenuItem key={n.id} className="flex-col items-start gap-1">
+                      <span className={`text-sm ${!n.is_read ? 'font-semibold' : ''}`}>{n.title}</span>
+                      <span className="text-xs text-muted-foreground">{new Date(n.created_at).toLocaleDateString()}</span>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                    No notifications
+                  </div>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/account/notifications">View all</Link>
@@ -241,27 +303,34 @@ export function Header() {
                 <User className="h-[18px] w-[18px]" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuLabel>Hello, Aditi</DropdownMenuLabel>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/account">Dashboard</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/account/orders">My Orders</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/account/profile">My Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/account/addresses">Saved Addresses</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/admin">Admin Dashboard</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/auth">Sign out</Link>
-                </DropdownMenuItem>
+                {session ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/account">Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/orders">My Orders</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/wishlist">Wishlist</Link>
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="text-primary font-medium">Admin Dashboard</Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600">
+                      Sign out
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem asChild>
+                    <Link to="/auth">Sign In</Link>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

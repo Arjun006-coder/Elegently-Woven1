@@ -7,12 +7,12 @@ export const Route = createFileRoute("/categories")({
   component: Categories,
   head: () => ({
     meta: [
-      { title: "Shop Saree Categories — Meera Silks" },
+      { title: "Shop Saree Categories — ElegantlyWoven" },
       {
         name: "description",
         content: "Browse sarees by weave, fabric and occasion — Kanjivaram, Banarasi, linen, cotton, bridal and more.",
       },
-      { property: "og:title", content: "Shop Saree Categories — Meera Silks" },
+      { property: "og:title", content: "Shop Saree Categories — ElegantlyWoven" },
       { property: "og:description", content: "Find your saree by weave, fabric and occasion." },
       { property: "og:url", content: "/categories" },
     ],

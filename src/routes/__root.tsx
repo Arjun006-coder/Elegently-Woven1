@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportError } from "../lib/error-reporting";
 import { ShopProvider } from "../lib/store";
 import { Toaster } from "../components/ui/sonner";
 import { LoadingScreen } from "../components/layout/LoadingScreen";
@@ -38,20 +38,19 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportError(error, { boundary: "root_error_boundary" });
   }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Something went wrong
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          An unexpected error occurred. Please try refreshing or head back home.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -80,16 +79,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Meera Silks — Handloom Saree Atelier" },
+      { title: "ElegantlyWoven — Premium Women's Fashion by LumaScale" },
       {
         name: "description",
         content:
-          "Handpicked Kanjivaram, Banarasi, linen and handloom sarees from a Bengaluru boutique. Weaver-direct pricing, certified silks, pan-India delivery.",
+          "ElegantlyWoven is your destination for premium women's fashion — curated sarees, kurtis, dresses, accessories and more. Pan-India delivery. Powered by LumaScale.",
       },
-      { name: "author", content: "Meera Silks" },
-      { property: "og:site_name", content: "Meera Silks" },
+      { name: "author", content: "LumaScale" },
+      { name: "generator", content: "ElegantlyWoven Platform" },
+      { property: "og:site_name", content: "ElegantlyWoven" },
+      { property: "og:title", content: "ElegantlyWoven — Premium Women's Fashion" },
+      {
+        property: "og:description",
+        content: "Curated women's fashion, delivered with elegance.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "ElegantlyWoven — Premium Women's Fashion" },
+      {
+        name: "twitter:description",
+        content: "Curated women's fashion, delivered with elegance.",
+      },
+      { name: "theme-color", content: "#7c3d2b" },
+      { name: "robots", content: "index, follow" },
     ],
     links: [
       {
@@ -109,16 +121,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "Store",
-          name: "Meera Silks",
-          description: "Handloom saree boutique in Bengaluru",
-          telephone: "+91 98450 21234",
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: "42, Rangoli Street, Basavanagudi",
-            addressLocality: "Bengaluru",
-            postalCode: "560004",
-            addressCountry: "IN",
+          "@type": "OnlineStore",
+          name: "ElegantlyWoven",
+          description: "Premium women's fashion e-commerce platform",
+          url: "https://elegantlywoven.com",
+          founder: {
+            "@type": "Organization",
+            name: "LumaScale",
+          },
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://elegantlywoven.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string",
           },
         }),
       },
@@ -151,7 +165,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ShopProvider>
         <LoadingScreen />
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        {/* Nested routes render here */}
         <Outlet />
         <Toaster position="top-center" />
       </ShopProvider>

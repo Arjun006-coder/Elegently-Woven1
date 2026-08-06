@@ -11,10 +11,10 @@ export const Route = createFileRoute("/order-success")({
   component: OrderSuccess,
   head: () => ({
     meta: [
-      { title: "Order Confirmed — Meera Silks" },
+      { title: "Order Confirmed — ElegantlyWoven" },
       { name: "description", content: "Your saree order is confirmed. Track your parcel or download the invoice." },
-      { property: "og:title", content: "Order Confirmed — Meera Silks" },
-      { property: "og:description", content: "Thank you for your order at Meera Silks." },
+      { property: "og:title", content: "Order Confirmed — ElegantlyWoven" },
+      { property: "og:description", content: "Thank you for your order at ElegantlyWoven." },
       { property: "og:url", content: "/order-success" },
       { name: "robots", content: "noindex" },
     ],

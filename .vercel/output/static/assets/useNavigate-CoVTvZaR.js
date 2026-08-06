@@ -1,1 +1,0 @@
-import{o as e}from"./jsx-runtime-cvnAX2Ol.js";import{n as t}from"./createLucideIcon-BwAE6bdB.js";import{t as n}from"./useRouter-DpHRvwqi.js";var r=e(t(),1);function i(e){let t=n();return r.useCallback(n=>t.navigate({...n,from:n.from??e?.from}),[e?.from,t])}export{i as t};

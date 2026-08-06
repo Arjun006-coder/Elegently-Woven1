@@ -41,9 +41,9 @@ async function main() {
         headers: { 'cache-control': 'public, max-age=31536000, immutable' },
         continue: true,
       },
-      // Serve static files if they exist
+      // Serve static files if they exist on disk
       { handle: 'filesystem' },
-      // All other routes → SSR edge function
+      // All other routes → Node.js SSR function
       { src: '/(.*)', dest: '/' },
     ],
   };
@@ -53,17 +53,18 @@ async function main() {
   );
   console.log('  ✓ config.json written');
 
-  // --- 2. Configure the Edge Function ---
+  // --- 2. Configure the Node.js Serverless Function ---
   const vcConfig = {
-    runtime: 'edge',
-    entrypoint: 'index.js',
+    runtime: 'nodejs20.x',
+    handler: 'index.js',
+    launcherType: 'Nodejs',
   };
   await fs.writeFile(
     path.join(vercelOutput, 'functions', 'index.func', '.vc-config.json'),
     JSON.stringify(vcConfig, null, 2)
   );
 
-  // --- 3. Copy all server assets into the edge function folder ---
+  // --- 3. Copy all server assets into the function folder ---
   const funcDir = path.join(vercelOutput, 'functions', 'index.func');
   await copyDir(distServerAssets, path.join(funcDir, 'assets'));
 
@@ -77,12 +78,69 @@ async function main() {
     throw new Error('Could not find bundled server file in dist/server/assets');
   }
 
-  // --- 4. Write the edge function entry point ---
-  // The main server file exports { default: { fetch(request, env, ctx) } }
-  // which is exactly the Web Fetch API format Vercel Edge Runtime expects.
-  const edgeFnContent = `export { default } from './assets/${mainServerFile}';`;
-  await fs.writeFile(path.join(funcDir, 'index.js'), edgeFnContent);
-  console.log(`  ✓ Edge function created (entry: ${mainServerFile})`);
+  // --- 4. Write Node.js handler that bridges req/res → Web Fetch API ---
+  // TanStack Start server exports: { default: { fetch(request, env, ctx) } }
+  // Vercel Node.js functions expect: export default function(req, res) {}
+  const handlerContent = `
+import { Readable } from 'stream';
+
+// Dynamically import the TanStack Start server bundle
+let serverPromise;
+function getServer() {
+  if (!serverPromise) {
+    serverPromise = import('./assets/${mainServerFile}').then(m => m.default ?? m);
+  }
+  return serverPromise;
+}
+
+// Convert Node.js IncomingMessage → Web API Request
+async function toWebRequest(req) {
+  const protocol = req.headers['x-forwarded-proto'] || 'https';
+  const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
+  const url = new URL(req.url, \`\${protocol}://\${host}\`);
+
+  const headers = new Headers();
+  for (const [key, val] of Object.entries(req.headers)) {
+    if (val) headers.set(key, Array.isArray(val) ? val.join(', ') : val);
+  }
+
+  const method = req.method || 'GET';
+  const hasBody = !['GET', 'HEAD'].includes(method.toUpperCase());
+
+  let body = null;
+  if (hasBody) {
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    body = Buffer.concat(chunks);
+  }
+
+  return new Request(url.toString(), { method, headers, body });
+}
+
+// Convert Web API Response → Node.js ServerResponse
+async function sendWebResponse(webRes, res) {
+  res.statusCode = webRes.status;
+  webRes.headers.forEach((value, key) => res.setHeader(key, value));
+  const buf = Buffer.from(await webRes.arrayBuffer());
+  res.end(buf);
+}
+
+export default async function handler(req, res) {
+  try {
+    const server = await getServer();
+    const webRequest = await toWebRequest(req);
+    const webResponse = await server.fetch(webRequest, {}, {});
+    await sendWebResponse(webResponse, res);
+  } catch (err) {
+    console.error('[SSR Error]', err);
+    res.statusCode = 500;
+    res.end('<h1>Internal Server Error</h1>');
+  }
+}
+`;
+
+  await fs.writeFile(path.join(funcDir, 'index.js'), handlerContent.trim());
+  console.log(`  ✓ Node.js SSR function created (server: ${mainServerFile})`);
 
   // --- 5. Copy all static client assets ---
   await copyDir(distClient, path.join(vercelOutput, 'static'));

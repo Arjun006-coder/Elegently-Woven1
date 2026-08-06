@@ -35,15 +35,12 @@ async function main() {
   const config = {
     version: 3,
     routes: [
-      // Cache static assets forever
       {
         src: '/assets/(.*)',
         headers: { 'cache-control': 'public, max-age=31536000, immutable' },
         continue: true,
       },
-      // Serve static files if they exist on disk
       { handle: 'filesystem' },
-      // All other routes → Node.js SSR function
       { src: '/(.*)', dest: '/' },
     ],
   };
@@ -68,7 +65,7 @@ async function main() {
   const funcDir = path.join(vercelOutput, 'functions', 'index.func');
   await copyDir(distServerAssets, path.join(funcDir, 'assets'));
 
-  // Find the main bundled server file (e.g. server-DNy-hgyB.js)
+  // Find the main bundled server file
   const serverAssets = await fs.readdir(distServerAssets);
   const mainServerFile = serverAssets.find(
     (f) => f.startsWith('server-') && f.endsWith('.js')
@@ -78,13 +75,24 @@ async function main() {
     throw new Error('Could not find bundled server file in dist/server/assets');
   }
 
-  // --- 4. Write Node.js handler that bridges req/res → Web Fetch API ---
-  // TanStack Start server exports: { default: { fetch(request, env, ctx) } }
-  // Vercel Node.js functions expect: export default function(req, res) {}
+  // --- 4. Copy package.json into the function so Vercel installs dependencies ---
+  const rootPkg = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf-8'));
+  // Only include production dependencies + type:module
+  const funcPkg = {
+    name: rootPkg.name,
+    type: 'module',
+    dependencies: rootPkg.dependencies,
+  };
+  await fs.writeFile(
+    path.join(funcDir, 'package.json'),
+    JSON.stringify(funcPkg, null, 2)
+  );
+  console.log('  ✓ package.json written to function (Vercel will install deps)');
+
+  // --- 5. Write Node.js handler that bridges req/res → Web Fetch API ---
   const handlerContent = `
 import { Readable } from 'stream';
 
-// Dynamically import the TanStack Start server bundle
 let serverPromise;
 function getServer() {
   if (!serverPromise) {
@@ -93,7 +101,6 @@ function getServer() {
   return serverPromise;
 }
 
-// Convert Node.js IncomingMessage → Web API Request
 async function toWebRequest(req) {
   const protocol = req.headers['x-forwarded-proto'] || 'https';
   const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
@@ -117,7 +124,6 @@ async function toWebRequest(req) {
   return new Request(url.toString(), { method, headers, body });
 }
 
-// Convert Web API Response → Node.js ServerResponse
 async function sendWebResponse(webRes, res) {
   res.statusCode = webRes.status;
   webRes.headers.forEach((value, key) => res.setHeader(key, value));
@@ -137,12 +143,12 @@ export default async function handler(req, res) {
     res.end('<h1>Internal Server Error</h1>');
   }
 }
-`;
+`.trim();
 
-  await fs.writeFile(path.join(funcDir, 'index.js'), handlerContent.trim());
+  await fs.writeFile(path.join(funcDir, 'index.js'), handlerContent);
   console.log(`  ✓ Node.js SSR function created (server: ${mainServerFile})`);
 
-  // --- 5. Copy all static client assets ---
+  // --- 6. Copy all static client assets ---
   await copyDir(distClient, path.join(vercelOutput, 'static'));
   console.log('  ✓ Static assets copied');
 

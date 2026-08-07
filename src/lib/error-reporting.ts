@@ -30,7 +30,7 @@ export function reportError(
   console.error("[ElegantlyWoven Error]", {
     message: getErrorMessage(error),
     stack: error instanceof Error ? error.stack : undefined,
-    route: window.location.pathname,
+    route: typeof window !== 'undefined' ? window.location.pathname : 'server',
     ...context,
   });
 }

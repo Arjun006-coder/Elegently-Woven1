@@ -17,7 +17,7 @@ function AddProduct() {
     slug: "",
     description: "",
     price: "",
-    status: "published",
+    status: "active",
     category: "",
     color: "",
     size: "Free Size",
@@ -59,18 +59,36 @@ function AddProduct() {
       }
     }
 
-    const { error } = await supabase.from("products").insert({
+    const finalImages = uploadedUrls.length > 0 ? uploadedUrls : formData.images.split(",").map(url => url.trim()).filter(Boolean);
+    const productPrice = parseFloat(formData.price);
+    const generatedSku = `EW-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+    // Map "published" to "active" for PostgreSQL product_status_enum compatibility
+    const dbStatus = formData.status === "published" ? "active" : formData.status;
+
+    const payload: any = {
       name: formData.name,
-      slug: formData.slug || formData.name.toLowerCase().replace(/[\s_]+/g, "-"),
+      slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
       description: formData.description,
-      price: parseFloat(formData.price),
-      status: formData.status,
+      price: productPrice,
+      mrp: productPrice * 1.2,
+      sku: generatedSku,
+      status: dbStatus,
       category: formData.category,
       color: formData.color,
       size: formData.size,
       stock: parseInt(formData.stock, 10),
-      images: uploadedUrls.length > 0 ? uploadedUrls : formData.images.split(",").map(url => url.trim()).filter(Boolean),
-    });
+      images: finalImages,
+    };
+
+    let { error } = await supabase.from("products").insert(payload);
+
+    // If 'images' column missing in Supabase schema, try without images column as fallback
+    if (error && error.message.includes("images")) {
+      const { images, ...payloadWithoutImages } = payload;
+      const res = await supabase.from("products").insert(payloadWithoutImages);
+      error = res.error;
+    }
 
     setLoading(false);
 
@@ -169,7 +187,7 @@ function AddProduct() {
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
             >
-              <option value="published">Published (Active)</option>
+              <option value="active">Active (Published)</option>
               <option value="draft">Draft (Hidden)</option>
             </select>
           </div>

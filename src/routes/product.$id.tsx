@@ -36,23 +36,10 @@ export const Route = createFileRoute("/product/$id")({
   loader: async ({ params }) => {
     let product = await getLiveProductBySlug(params.id);
     
-    // If not in database, fallback to the placeholder mock data for now
     if (!product) {
       const mockProduct = byId(params.id);
       if (!mockProduct) throw notFound();
       product = mockProduct;
-    } else {
-      // Merge live product with required UI fields to prevent crashes
-      product = {
-        ...byId("ms-100482")!, // default fallback properties
-        ...product,
-        mrp: product.originalPrice || product.price * 1.2,
-        rating: 4.8,
-        reviews: 124,
-        stock: 10,
-        weave: "Live Product",
-        fabric: "Pure Silk",
-      };
     }
     
     return { product };

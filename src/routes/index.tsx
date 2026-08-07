@@ -217,6 +217,8 @@ function ProductRow({
 
 function Home() {
   const { liveProducts } = Route.useLoaderData();
+  const allLive = (liveProducts && liveProducts.length > 0) ? liveProducts : products;
+
   const featured = collections.filter((c) =>
     ["bridal", "kanjivaram", "banarasi", "linen"].includes(c.slug),
   );
@@ -284,7 +286,7 @@ function Home() {
         </div>
       </section>
 
-      <ProductRow eyebrow="Just In" title="Latest arrivals" to="/new-arrivals" items={liveProducts.slice(0, 4)} />
+      <ProductRow eyebrow="Just In" title="Latest arrivals" to="/new-arrivals" items={allLive.slice(0, 4)} />
 
       <ParallaxBanner
         image={images.hero2}
@@ -295,7 +297,7 @@ function Home() {
         cta="Shop festival"
       />
 
-      <ProductRow eyebrow="Signature" title="Best sellers" to="/best-sellers" items={liveProducts.slice(4, 8)} />
+      <ProductRow eyebrow="Signature" title="Best sellers" to="/best-sellers" items={allLive.slice(4, 8)} />
 
       <ParallaxBanner
         image={images.hero3}

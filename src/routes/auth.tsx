@@ -82,7 +82,7 @@ function AuthPage() {
           }}
           theme="default"
           providers={["google"]} // Add other providers if configured in Supabase
-          redirectTo={`${window.location.origin}/auth/callback`}
+          redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined}
         />
       </div>
     </div>

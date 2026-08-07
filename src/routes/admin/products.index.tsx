@@ -30,7 +30,7 @@ function AdminProducts() {
     setLoading(true);
     const { data, error } = await supabase
       .from("products")
-      .select("id, name, price, status, slug, stock, views_count, category, color")
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -132,8 +132,8 @@ function AdminProducts() {
                     <p className="text-xs text-muted-foreground">{product.category || 'Uncategorized'} · {product.color || 'No color'} · ₹{product.price?.toFixed(2)}</p>
                   </TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {product.status || 'Draft'}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${(product.status === 'published' || product.status === 'active') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      {product.status === 'active' ? 'Active' : (product.status || 'Draft')}
                     </span>
                   </TableCell>
                   <TableCell>

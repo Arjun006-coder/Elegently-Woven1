@@ -37,18 +37,51 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
   // 1. Fetch live products so we can resolve byId for live items
   useEffect(() => {
-    supabase.from("products").select("*").then(({ data }) => {
+    supabase.from("products").select("*").then(({ data, error }) => {
+      if (error) {
+        console.error("Error fetching live products in ShopProvider:", error);
+        return;
+      }
       if (data) {
-        // Map db fields to Product type
-        const formatted = data.map((d: any) => ({
-          ...d,
-          isNew: d.is_new,
-          images: Array.isArray(d.images) ? d.images : (typeof d.images === 'string' ? JSON.parse(d.images) : [d.images]),
-          // Give some defaults for fields not strictly in DB yet
-          weave: d.category || "Silk",
-          fabric: d.fabric || "Silk",
-          color: d.color || "Red",
-        }));
+        const formatted = data.map((d: any) => {
+          let imgs: string[] = [];
+          if (Array.isArray(d.images)) {
+            imgs = d.images.filter(Boolean);
+          } else if (typeof d.images === 'string' && d.images.trim()) {
+            try {
+              const cleaned = d.images.replace(/^\{|\}$/g, '').replace(/^\[|\]$/g, '');
+              imgs = cleaned.split(',').map((s: string) => s.trim().replace(/^"|"$/g, '')).filter(Boolean);
+            } catch {
+              imgs = [d.images];
+            }
+          }
+          if (imgs.length === 0) {
+            imgs = ["https://images.unsplash.com/photo-1610189014163-54942d512a81?w=800&q=80"];
+          }
+
+          const productPrice = Number(d.price) || 9999;
+          const productMrp = Number(d.mrp) || (productPrice * 1.2);
+
+          return {
+            id: d.id,
+            name: d.name,
+            slug: d.slug,
+            description: d.description || "Handcrafted saree from ElegantlyWoven.",
+            price: productPrice,
+            mrp: productMrp,
+            image: imgs[0],
+            images: imgs,
+            isNew: d.is_new ?? true,
+            status: d.status || "active",
+            stock: d.stock ?? 10,
+            category: d.category || "Silk Sarees",
+            weave: d.weave || d.category || "Silk",
+            fabric: d.fabric || "Pure Silk",
+            color: d.color || "Emerald",
+            rating: 4.9,
+            reviews: 18,
+          };
+        });
         setLiveProducts(formatted);
       }
     });

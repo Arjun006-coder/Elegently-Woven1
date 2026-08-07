@@ -23,7 +23,7 @@ export async function requireAuth() {
     throw redirect({
       to: "/auth",
       search: {
-        redirect: window.location.pathname,
+        redirect: typeof window !== 'undefined' ? window.location.pathname : "/",
       },
     });
   }
@@ -45,5 +45,7 @@ export async function requireAdmin() {
 
 export async function signOut() {
   await supabase.auth.signOut();
-  window.location.href = "/";
+  if (typeof window !== 'undefined') {
+    window.location.href = "/";
+  }
 }

@@ -57,9 +57,9 @@ function FilterPanel({
         <Slider
           className="mt-4"
           value={price}
-          min={2000}
-          max={80000}
-          step={1000}
+          min={0}
+          max={200000}
+          step={500}
           onValueChange={setPrice}
           aria-label="Price range"
         />
@@ -102,7 +102,7 @@ export function CollectionView({
 }) {
   const base = source ?? allProducts;
   const [selected, setSelected] = useState<Selected>({});
-  const [price, setPrice] = useState<number[]>([2000, 80000]);
+  const [price, setPrice] = useState<number[]>([0, 200000]);
   const [inStock, setInStock] = useState(false);
   const [sort, setSort] = useState("popular");
   const [visible, setVisible] = useState(pageSize);

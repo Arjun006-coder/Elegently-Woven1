@@ -4,6 +4,13 @@ ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category VARCHAR(100);
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS color VARCHAR(50);
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS size VARCHAR(50);
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS views_count INT DEFAULT 0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS original_price NUMERIC(12,2);
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_new BOOLEAN DEFAULT TRUE;
+
+ALTER TABLE public.products ALTER COLUMN category_id DROP NOT NULL;
+ALTER TABLE public.products ALTER COLUMN sku DROP NOT NULL;
+ALTER TABLE public.products ALTER COLUMN mrp DROP NOT NULL;
 
 -- 2. Create Wishlists table (Cloud Sync)
 DROP TABLE IF EXISTS public.wishlists CASCADE;
@@ -104,3 +111,20 @@ BEGIN
   WHERE id = product_id;
 END;
 $$;
+
+-- Enforce security_invoker = true on views to satisfy Supabase security linter
+ALTER VIEW IF EXISTS public.v_active_products SET (security_invoker = true);
+ALTER VIEW IF EXISTS public.v_order_summary SET (security_invoker = true);
+
+-- Products table RLS policies for admin & storefront operations
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public products read access" ON public.products;
+DROP POLICY IF EXISTS "Anyone can insert products" ON public.products;
+DROP POLICY IF EXISTS "Anyone can update products" ON public.products;
+DROP POLICY IF EXISTS "Anyone can delete products" ON public.products;
+
+CREATE POLICY "Public products read access" ON public.products FOR SELECT USING (true);
+CREATE POLICY "Anyone can insert products" ON public.products FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can update products" ON public.products FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Anyone can delete products" ON public.products FOR DELETE USING (true);

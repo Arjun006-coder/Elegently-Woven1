@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
+import { sendOrderEmail } from "../../lib/email";
 import { Button } from "../../components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Bell } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/products/new")({
   component: AddProduct,
@@ -11,6 +13,7 @@ export const Route = createFileRoute("/admin/products/new")({
 function AddProduct() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [notifyCustomers, setNotifyCustomers] = useState(true);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -93,8 +96,48 @@ function AddProduct() {
     setLoading(false);
 
     if (error) {
-      alert("Error saving product: " + error.message);
+      toast.error("Error saving product: " + error.message);
     } else {
+      toast.success("Product created successfully!");
+
+      // Broadcast email & notification if checked
+      if (notifyCustomers) {
+        try {
+          const { data: customerProfiles } = await supabase
+            .from("profiles")
+            .select("id, email, full_name");
+
+          if (customerProfiles && customerProfiles.length > 0) {
+            // 1. Send broadcast emails
+            customerProfiles.forEach((cust) => {
+              if (cust.email) {
+                sendOrderEmail({
+                  type: "new_arrival",
+                  to: cust.email,
+                  customerName: cust.full_name || "Valued Customer",
+                  productName: payload.name,
+                  productSlug: payload.slug,
+                  price: payload.price,
+                  image: finalImages[0] || "",
+                  category: payload.category || "Handloom",
+                });
+              }
+            });
+
+            // 2. Insert in-app notifications
+            const notifPayloads = customerProfiles.map((cust) => ({
+              user_id: cust.id,
+              title: `✨ New Arrival: ${payload.name}`,
+              description: `Check out our new ${payload.category || "handloom"} saree, now available for ${payload.price ? `₹${payload.price.toLocaleString("en-IN")}` : "order"}.`,
+              icon: "Sparkles",
+            }));
+            await supabase.from("notifications").insert(notifPayloads);
+          }
+        } catch (broadcastErr) {
+          console.warn("Broadcast notice (non-critical):", broadcastErr);
+        }
+      }
+
       navigate({ to: "/admin/products" });
     }
   };
@@ -231,15 +274,22 @@ function AddProduct() {
             />
           </div>
 
-          <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium">Description</label>
-            <textarea
-              rows={5}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Detailed product information..."
-            />
+          <div className="space-y-2 md:col-span-2 bg-accent/30 p-4 rounded-lg border border-border">
+            <label className="flex items-center gap-3 cursor-pointer text-sm font-medium">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+                checked={notifyCustomers}
+                onChange={(e) => setNotifyCustomers(e.target.checked)}
+              />
+              <span className="flex items-center gap-2">
+                <Bell size={16} className="text-amber-600" />
+                Notify all customers via Email & In-App Notification about this new collection drop
+              </span>
+            </label>
+            <p className="text-xs text-muted-foreground ml-7">
+              Automatically sends a luxury product showcase email with images and direct order link to all registered users.
+            </p>
           </div>
         </div>
 

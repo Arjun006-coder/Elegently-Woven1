@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ArrowUp, MessageCircle, X, Send, Headphones, Sparkles, User } from "lucide-react";
 import { BRAND } from "@/lib/data";
 import { Input } from "@/components/ui/input";
+import { askGeminiShopkeeper } from "@/lib/gemini";
 
 interface ChatMessage {
   id: string;
@@ -37,7 +38,7 @@ export function FloatingWidgets() {
     }
   }, [messages, chat]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMsg.trim()) return;
 
@@ -52,31 +53,29 @@ export function FloatingWidgets() {
     setMessages((prev) => [...prev, userMsgObj]);
     setInputMsg("");
 
-    // Simulate Saree Stylist AI Assistant Response
-    setTimeout(() => {
-      let botResponse = "That sounds wonderful! For bridal and festive occasions, our Pure Kanjivaram Silk and Banarasi Katans are timeless choices. Check out our Collections tab or speak directly with our master weaver on WhatsApp!";
-      
-      const lower = userText.toLowerCase();
-      if (lower.includes("hi") || lower.includes("hello") || lower.includes("hey")) {
-        botResponse = "Namaste! 😊 How can I assist your saree search today? Are you looking for Wedding, Festival, or Daily Handloom wear?";
-      } else if (lower.includes("wedding") || lower.includes("bridal") || lower.includes("marriage")) {
-        botResponse = "For weddings, our Kanjivaram Silk Sarees with gold zari and Sindoor Banarasi Katans are customer favorites! Explore our 'Bridal Collection' from the main menu.";
-      } else if (lower.includes("price") || lower.includes("cost") || lower.includes("cheap") || lower.includes("budget")) {
-        botResponse = "Our handcrafted sarees start from ₹2,499 up to ₹45,000 for pure zari silks. Use the filter on our Collections page to browse by budget!";
-      } else if (lower.includes("ship") || lower.includes("delivery") || lower.includes("track")) {
-        botResponse = "We provide free insured shipping across India on orders above ₹2,999! You can track your order status anytime under the 'Track Order' page.";
-      }
-
+    // Fetch AI Indian Shopkeeper Response from Gemini API (with Product Catalog Context)
+    try {
+      const botReply = await askGeminiShopkeeper(userText, messages);
       setMessages((prev) => [
         ...prev,
         {
           id: `b-${Date.now()}`,
           sender: "bot",
-          text: botResponse,
+          text: botReply,
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
-    }, 600);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `b-${Date.now()}`,
+          sender: "bot",
+          text: "Namasteji! AAP bilkul tension mat lijiye. Explore our fine silk collections or speak with our weavers on WhatsApp!",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
+    }
   };
 
   return (

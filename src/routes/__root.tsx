@@ -169,7 +169,6 @@ function RootComponent() {
       <ShopProvider>
         <LanguageProvider>
           <SmoothScroll>
-            <SmoothCursor />
             <LoadingScreen />
             {/* Nested routes render here */}
             <Outlet />

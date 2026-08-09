@@ -68,6 +68,11 @@ function AuthCallback() {
     };
 
     const handleSuccessfulLogin = async (user: any) => {
+      // Clean sensitive tokens/codes from URL bar
+      if (typeof window !== "undefined") {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+
       // Send welcome email (non-blocking, fire and forget)
       if (user?.email) {
         sendOrderEmail({

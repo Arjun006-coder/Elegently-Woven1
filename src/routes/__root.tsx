@@ -169,7 +169,6 @@ function RootComponent() {
       <ShopProvider>
         <LanguageProvider>
           <SmoothScroll>
-            <LoadingScreen />
             {/* Nested routes render here */}
             <Outlet />
             <Toaster position="top-center" />

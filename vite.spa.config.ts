@@ -23,6 +23,10 @@ export default defineConfig({
       "@": new URL("./src", import.meta.url).pathname,
     },
   },
+  server: {
+    port: 3000,
+    host: true,
+  },
   build: {
     outDir: "dist-spa",
     emptyOutDir: true,

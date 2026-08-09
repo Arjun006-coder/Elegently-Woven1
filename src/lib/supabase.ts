@@ -13,16 +13,11 @@ export const supabase = createClient<Database>(
   supabaseAnonKey || "",
   {
     auth: {
-      // PKCE flow: tokens never appear in URL — secure by default
-      flowType: "pkce",
-      // Keep session alive across browser refreshes via localStorage
-      persistSession: true,
-      // Auto-refresh token before expiry
-      autoRefreshToken: true,
-      // Detect session from URL hash (for implicit flow fallback)
-      detectSessionInUrl: true,
-      // Use localStorage so session survives page reload
-      storage: window.localStorage,
+      persistSession: true,       // Session survives page refresh
+      autoRefreshToken: true,     // Keeps session alive automatically
+      detectSessionInUrl: true,   // Handles OAuth hash/query params
+      flowType: "pkce",           // Most secure OAuth flow — tokens can't be intercepted/replayed
+      storageKey: "ew_auth_token",// Custom key so it's identifiable in browser storage
     },
   }
 );

@@ -6,8 +6,6 @@ import { LogOut, User, MapPin, CreditCard, ShoppingBag, LayoutDashboard, Bell } 
 import { useState, useEffect } from "react";
 import { cn } from "../lib/utils";
 
-import { Loader2 } from "lucide-react";
-
 export const Route = createFileRoute("/account")({
   beforeLoad: async () => {
     await requireAuth();
@@ -17,23 +15,11 @@ export const Route = createFileRoute("/account")({
 
 function AccountLayout() {
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    getSession().then((s) => {
-      setSession(s);
-      setLoading(false);
-    });
+    getSession().then(setSession);
   }, []);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   if (!session) return null;
 

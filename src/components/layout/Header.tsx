@@ -55,48 +55,36 @@ export function Header() {
   };
 
   useEffect(() => {
-    let currentToken = "";
-
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
+      setSession(data.session);
       if (data.session) {
-        currentToken = data.session.access_token;
-        setSession(data.session);
         const profile = await getProfile(data.session.user.id);
         setIsAdmin(profile?.role === "admin" || profile?.role === "super_admin");
         
         // Fetch notifications
-        try {
-          const { data: notifs } = await supabase
-            .from("notifications")
-            .select("*")
-            .eq("user_id", data.session.user.id)
-            .order("created_at", { ascending: false })
-            .limit(3);
-            
-          if (notifs) {
-            setNotifications(notifs);
-            setUnreadCount(notifs.filter(n => !n.is_read).length);
-          }
-        } catch {}
-      } else {
-        setSession(null);
-        setIsAdmin(false);
+        const { data: notifs } = await supabase
+          .from("notifications")
+          .select("*")
+          .eq("user_id", data.session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(3);
+          
+        if (notifs) {
+          setNotifications(notifs);
+          setUnreadCount(notifs.filter(n => !n.is_read).length);
+        }
       }
     };
     checkSession();
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      const newToken = newSession?.access_token || "";
-      if (newToken !== currentToken) {
-        currentToken = newToken;
-        setSession(newSession);
-        if (newSession) {
-          const profile = await getProfile(newSession.user.id);
-          setIsAdmin(profile?.role === "admin" || profile?.role === "super_admin");
-        } else {
-          setIsAdmin(false);
-        }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
+      setSession(session);
+      if (session) {
+        const profile = await getProfile(session.user.id);
+        setIsAdmin(profile?.role === "admin" || profile?.role === "super_admin");
+      } else {
+        setIsAdmin(false);
       }
     });
     return () => subscription.unsubscribe();

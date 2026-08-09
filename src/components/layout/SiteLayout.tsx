@@ -2,6 +2,7 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { FloatingWidgets } from "./FloatingWidgets";
 import { CookieConsent } from "./CookieConsent";
+import { OnboardingModal } from "@/components/auth/OnboardingModal";
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       <Footer />
       <FloatingWidgets />
       <CookieConsent />
+      <OnboardingModal />
     </div>
   );
 }

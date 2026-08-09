@@ -15,21 +15,8 @@ export default defineConfig({
     }),
     react(),
   ],
-  resolve: {
-    // Force a single React instance — prevents "useState is null" crash
-    // caused by @supabase/auth-ui-react bundling its own React copy
-    dedupe: ["react", "react-dom", "@tanstack/react-router"],
-    alias: {
-      "@": new URL("./src", import.meta.url).pathname,
-    },
-  },
-  server: {
-    port: 3000,
-    host: true,
-  },
   build: {
     outDir: "dist-spa",
     emptyOutDir: true,
   },
 });
-

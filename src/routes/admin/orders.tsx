@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { inr } from "../../lib/data";
-import { sendOrderEmail } from "../../lib/email";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import {
@@ -21,6 +20,7 @@ import {
 } from "../../components/ui/dialog";
 import { Loader2, Search, Printer, Share2, MessageSquare, Mail, RefreshCw, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { sendShippingUpdateEmail, sendDeliveryEmail } from "@/lib/email";
 
 export const Route = createFileRoute("/admin/orders")({
   component: AdminOrdersPage,
@@ -54,7 +54,7 @@ function AdminOrdersPage() {
     setLoading(false);
   }
 
-  async function handleStatusChange(orderId: string, userId: string | null, newStatus: string, orderNum: string, order: any) {
+  async function handleStatusChange(orderId: string, userId: string | null, newStatus: string, orderNum: string) {
     const { error } = await supabase
       .from("orders")
       .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -63,38 +63,32 @@ function AdminOrdersPage() {
     if (error) {
       toast.error("Failed to update status: " + error.message);
     } else {
-      toast.success(`Order #${orderNum} status updated to ${newStatus}`);
-      setOrders(orders.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
-
-      // Send email to customer based on status
-      const customerEmail = order.customer_email;
-      const customerName = order.customer_name || "Valued Customer";
-      if (customerEmail) {
+      // Notify customer via email & in-app notification
+      const currentOrder = orders.find((o) => o.id === orderId);
+      if (currentOrder) {
         if (newStatus === "Shipped") {
-          sendOrderEmail({
-            type: "order_shipped",
-            to: customerEmail,
-            customerName,
-            orderNumber: orderNum,
-            trackingNumber: order.tracking_number,
-            estimatedDelivery: new Date(Date.now() + 3 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
-          });
+          sendShippingUpdateEmail({
+            order_number: currentOrder.order_number,
+            customer_name: currentOrder.customer_name,
+            customer_email: currentOrder.customer_email,
+            tracking_number: currentOrder.tracking_number || `EWTRK${Math.floor(100000 + Math.random() * 900000)}`,
+            total_amount: currentOrder.total_amount,
+          }).catch((e) => console.warn("Shipping email error:", e));
         } else if (newStatus === "Delivered") {
-          sendOrderEmail({
-            type: "order_delivered",
-            to: customerEmail,
-            customerName,
-            orderNumber: orderNum,
-          });
+          sendDeliveryEmail({
+            order_number: currentOrder.order_number,
+            customer_name: currentOrder.customer_name,
+            customer_email: currentOrder.customer_email,
+            total_amount: currentOrder.total_amount,
+          }).catch((e) => console.warn("Delivery email error:", e));
         }
       }
 
-      // Notify customer in-app if user_id exists
       if (userId) {
         try {
           await supabase.from("notifications").insert({
             user_id: userId,
-            title: `Order #${orderNum} Updated`,
+            title: `Order #${orderNum} ${newStatus}`,
             description: `Your order status has been updated to ${newStatus}.`,
             icon: "Truck",
           });
@@ -246,7 +240,7 @@ ElegantlyWoven Team`);
                     <select
                       className="text-xs font-semibold px-2 py-1 rounded-md border border-input bg-background"
                       value={ord.status || "Processing"}
-                      onChange={(e) => handleStatusChange(ord.id, ord.user_id, e.target.value, ord.order_number, ord)}
+                      onChange={(e) => handleStatusChange(ord.id, ord.user_id, e.target.value, ord.order_number)}
                     >
                       <option value="Processing">Processing</option>
                       <option value="Shipped">Shipped</option>

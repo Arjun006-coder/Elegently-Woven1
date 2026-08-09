@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { sendOrderEmail } from "../../lib/email";
 import { Button } from "../../components/ui/button";
-import { Loader2, Bell } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+
+import { sendCollectionUpdateEmail } from "@/lib/email";
 
 export const Route = createFileRoute("/admin/products/new")({
   component: AddProduct,
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin/products/new")({
 function AddProduct() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [notifyCustomers, setNotifyCustomers] = useState(true);
+  const [notifySubscribers, setNotifySubscribers] = useState(true);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -96,46 +96,23 @@ function AddProduct() {
     setLoading(false);
 
     if (error) {
-      toast.error("Error saving product: " + error.message);
+      alert("Error saving product: " + error.message);
     } else {
-      toast.success("Product created successfully!");
-
-      // Broadcast email & notification if checked
-      if (notifyCustomers) {
-        try {
-          const { data: customerProfiles } = await supabase
-            .from("profiles")
-            .select("id, email, full_name");
-
-          if (customerProfiles && customerProfiles.length > 0) {
-            // 1. Send broadcast emails
-            customerProfiles.forEach((cust) => {
-              if (cust.email) {
-                sendOrderEmail({
-                  type: "new_arrival",
-                  to: cust.email,
-                  customerName: cust.full_name || "Valued Customer",
-                  productName: payload.name,
-                  productSlug: payload.slug,
-                  price: payload.price,
-                  image: finalImages[0] || "",
-                  category: payload.category || "Handloom",
-                });
-              }
-            });
-
-            // 2. Insert in-app notifications
-            const notifPayloads = customerProfiles.map((cust) => ({
-              user_id: cust.id,
-              title: `✨ New Arrival: ${payload.name}`,
-              description: `Check out our new ${payload.category || "handloom"} saree, now available for ${payload.price ? `₹${payload.price.toLocaleString("en-IN")}` : "order"}.`,
-              icon: "Sparkles",
-            }));
-            await supabase.from("notifications").insert(notifPayloads);
+      // Send luxury collection update email broadcast to opted-in subscribers
+      if (notifySubscribers) {
+        sendCollectionUpdateEmail({
+          name: payload.name,
+          description: payload.description,
+          price: payload.price,
+          mrp: payload.mrp,
+          category: payload.category,
+          images: payload.images,
+          slug: payload.slug,
+        }).then((count) => {
+          if (count > 0) {
+            console.log(`Collection drop email sent to ${count} subscribers`);
           }
-        } catch (broadcastErr) {
-          console.warn("Broadcast notice (non-critical):", broadcastErr);
-        }
+        }).catch((e) => console.warn("Collection update email error:", e));
       }
 
       navigate({ to: "/admin/products" });
@@ -274,29 +251,36 @@ function AddProduct() {
             />
           </div>
 
-          <div className="space-y-2 md:col-span-2 bg-accent/30 p-4 rounded-lg border border-border">
-            <label className="flex items-center gap-3 cursor-pointer text-sm font-medium">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
-                checked={notifyCustomers}
-                onChange={(e) => setNotifyCustomers(e.target.checked)}
-              />
-              <span className="flex items-center gap-2">
-                <Bell size={16} className="text-amber-600" />
-                Notify all customers via Email & In-App Notification about this new collection drop
-              </span>
-            </label>
-            <p className="text-xs text-muted-foreground ml-7">
-              Automatically sends a luxury product showcase email with images and direct order link to all registered users.
-            </p>
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-medium">Description</label>
+            <textarea
+              rows={5}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Detailed product information..."
+            />
           </div>
         </div>
 
-        <div className="pt-6 flex gap-4 border-t mt-6">
+        <div className="pt-4">
+          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gold/30 bg-accent/20">
+            <input
+              type="checkbox"
+              checked={notifySubscribers}
+              onChange={(e) => setNotifySubscribers(e.target.checked)}
+              className="h-4 w-4 rounded border-input text-primary accent-primary"
+            />
+            <span className="text-xs font-medium text-foreground">
+              ✨ Broadcast new collection email with product photo & details to all opted-in customers
+            </span>
+          </label>
+        </div>
+
+        <div className="pt-4 flex gap-4 border-t">
           <Button type="submit" disabled={loading} className="w-full sm:w-auto px-8">
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Save Product
+            Save & Publish Product
           </Button>
           <Button type="button" variant="outline" className="w-full sm:w-auto px-8" onClick={() => navigate({ to: "/admin/products" })}>
             Cancel

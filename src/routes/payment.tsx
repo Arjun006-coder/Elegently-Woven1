@@ -11,8 +11,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 
 import { supabase } from "@/lib/supabase";
-import { sendOrderEmail } from "@/lib/email";
 import { toast } from "sonner";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export const Route = createFileRoute("/payment")({
   component: PaymentPage,
@@ -180,6 +180,20 @@ function PaymentPage() {
         }
       }
 
+      // Send Order Confirmation & Receipt Email asynchronously
+      sendOrderConfirmationEmail({
+        order_number: orderNum,
+        customer_name: customerName,
+        customer_email: customerEmail,
+        total_amount: total,
+        subtotal,
+        tax_amount: gst,
+        shipping_charge: shipping,
+        payment_method: method.toUpperCase(),
+        items: itemsPayload,
+        shipping_address: shippingAddress,
+      }).catch((emailErr) => console.warn("Order confirmation email error:", emailErr));
+
       const orderInfo = {
         orderNumber: orderNum,
         total,
@@ -192,22 +206,8 @@ function PaymentPage() {
       };
       sessionStorage.setItem("ew_last_order", JSON.stringify(orderInfo));
 
-      // Send order confirmation email (non-blocking)
-      if (customerEmail && customerEmail !== "customer@example.com") {
-        sendOrderEmail({
-          type: "order_confirmation",
-          to: customerEmail,
-          customerName,
-          orderNumber: orderNum,
-          orderTotal: total,
-          items: lines.map((l) => ({ name: l.product.name, qty: l.qty, price: l.product.price })),
-          shippingAddress: shippingAddress as any,
-          paymentMethod: method.toUpperCase(),
-        });
-      }
-
       clearCart();
-      toast.success("Payment Successful!", { description: `Order ${orderNum} confirmed. Check your email!` });
+      toast.success("Payment Successful!", { description: `Order ${orderNum} confirmed.` });
       navigate({ to: "/order-success" });
     } catch (err) {
       console.error(err);

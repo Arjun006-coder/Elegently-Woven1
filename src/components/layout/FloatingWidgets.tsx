@@ -1,67 +1,18 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowUp, MessageCircle, X, Send, Headphones, Sparkles, RefreshCw, Bot } from "lucide-react";
+import { ArrowUp, MessageCircle, X, Send, Headphones } from "lucide-react";
 import { BRAND } from "@/lib/data";
 import { Input } from "@/components/ui/input";
-import { askGeminiStylist, type ChatMessage } from "@/lib/gemini";
-
-const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
-
-const quickPrompts = [
-  "👰 Wedding saree under ₹25,000",
-  "🥻 Best Kanjivaram for reception",
-  "📦 What is the delivery time?",
-  "✨ Silk Mark certification",
-];
 
 export function FloatingWidgets() {
   const [showTop, setShowTop] = useState(false);
   const [chat, setChat] = useState(false);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "model",
-      text: "Namaste! I am Ananya, your AI Saree Stylist & Concierge at ElegantlyWoven. Tell me your occasion, colour, or budget — I'll find your perfect drape!",
-    },
-  ]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 600);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    if (chat) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, chat, loading]);
-
-  const handleSend = async (userText: string) => {
-    if (!userText.trim() || loading) return;
-
-    const newMsg: ChatMessage = { role: "user", text: userText.trim() };
-    const updatedHistory = [...messages, newMsg];
-    setMessages(updatedHistory);
-    setInput("");
-    setLoading(true);
-
-    const botReply = await askGeminiStylist(updatedHistory, userText.trim(), GEMINI_KEY);
-
-    setMessages((prev) => [...prev, { role: "model", text: botReply }]);
-    setLoading(false);
-  };
-
-  const handleReset = () => {
-    setMessages([
-      {
-        role: "model",
-        text: "Namaste! How may I assist you with your saree selection today?",
-      },
-    ]);
-  };
 
   return (
     <div className="pointer-events-none fixed right-4 bottom-4 z-50 flex flex-col items-end gap-3 sm:right-6 sm:bottom-6">
@@ -71,110 +22,28 @@ export function FloatingWidgets() {
             initial={{ opacity: 0, y: 20, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.96 }}
-            className="pointer-events-auto w-[22rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-3xl border border-border bg-card shadow-2xl flex flex-col h-[30rem]"
+            className="pointer-events-auto w-[19rem] overflow-hidden rounded-2xl glass shadow-lift"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-border bg-primary text-primary-foreground px-4 py-3 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="grid h-8 w-8 place-items-center rounded-full bg-gold/20 text-gold">
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-serif font-semibold leading-none">Ananya · AI Stylist</p>
-                  <p className="text-[10px] text-primary-foreground/75 mt-0.5">ElegantlyWoven Luxury Concierge</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  aria-label="Reset conversation"
-                  className="grid h-7 w-7 place-items-center rounded-full hover:bg-white/10 text-primary-foreground/80 transition-colors"
-                  title="Reset Chat"
-                >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChat(false)}
-                  aria-label="Close chat"
-                  className="grid h-7 w-7 place-items-center rounded-full hover:bg-white/10 text-primary-foreground/80 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+            <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+              <p className="flex items-center gap-2 text-sm">
+                <Headphones className="h-4 w-4 text-gold" /> Saree stylist
+              </p>
+              <button type="button" onClick={() => setChat(false)} aria-label="Close chat">
+                <X className="h-4 w-4" />
+              </button>
             </div>
-
-            {/* Quick Prompt Chips */}
-            <div className="flex items-center gap-1.5 overflow-x-auto p-2 bg-secondary/40 border-b border-border/50 shrink-0 text-xs no-scrollbar">
-              {quickPrompts.map((prompt, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => handleSend(prompt)}
-                  className="whitespace-nowrap rounded-full bg-background border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:border-gold hover:text-foreground transition-colors shrink-0"
-                >
-                  {prompt}
-                </button>
-              ))}
+            <div className="space-y-3 px-4 py-4 text-sm">
+              <p className="rounded-2xl rounded-bl-sm bg-secondary px-3 py-2">
+                Namaste! Tell us the occasion and budget — we'll shortlist three drapes for you.
+              </p>
+              <p className="text-[11px] text-muted-foreground">Typically replies in 2 minutes</p>
             </div>
-
-            {/* Messages Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs">
-              {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`flex items-start gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
-                >
-                  {msg.role === "model" && (
-                    <div className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary shrink-0 mt-0.5">
-                      <Bot className="h-3.5 w-3.5" />
-                    </div>
-                  )}
-                  <div
-                    className={`rounded-2xl px-3.5 py-2.5 leading-relaxed max-w-[85%] ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-tr-none font-sans"
-                        : "bg-secondary/70 text-foreground border border-border/50 rounded-tl-none font-serif text-[13px]"
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-
-              {loading && (
-                <div className="flex items-center gap-2 text-muted-foreground text-xs py-1">
-                  <div className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary shrink-0">
-                    <Sparkles className="h-3.5 w-3.5 animate-spin" />
-                  </div>
-                  <span className="italic text-[11px]">Ananya is curating drapes for you...</span>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input Footer */}
             <form
-              className="flex items-center gap-2 border-t border-border/70 p-3 bg-background shrink-0"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSend(input);
-              }}
+              className="flex items-center gap-2 border-t border-border/60 px-3 py-3"
+              onSubmit={(e) => e.preventDefault()}
             >
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask Ananya about sarees, occasion, budget..."
-                className="h-9 rounded-full text-xs"
-                aria-label="Message"
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                aria-label="Send message"
-                className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50 transition-opacity shrink-0"
-              >
+              <Input placeholder="Type a message" className="h-9 rounded-full" aria-label="Message" />
+              <button type="submit" aria-label="Send" className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
                 <Send className="h-4 w-4" />
               </button>
             </form>
@@ -211,13 +80,10 @@ export function FloatingWidgets() {
       <button
         type="button"
         onClick={() => setChat((c) => !c)}
-        aria-label="Open AI Saree Stylist"
-        className="pointer-events-auto relative grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-lift transition-transform hover:scale-105"
+        aria-label="Open live chat"
+        className="pointer-events-auto grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-lift transition-transform hover:scale-105"
       >
         <Headphones className="h-5 w-5" />
-        <span className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-gold text-[9px] font-bold text-black">
-          AI
-        </span>
       </button>
     </div>
   );

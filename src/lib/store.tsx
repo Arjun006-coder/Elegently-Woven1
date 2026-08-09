@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { byId, type Product } from "./data";
 import { supabase } from "./supabase";
@@ -87,30 +87,26 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const userIdRef = useRef<string | null>(null);
-
   // 2. Auth & Cloud Sync Initialization
   useEffect(() => {
-    const initSync = async (session: any) => {
-      const currentId = session?.user?.id || null;
-      userIdRef.current = currentId;
-      setUserId(currentId);
-
-      if (session?.user) {
-        try {
-          // Fetch cloud cart
-          const { data: cartData } = await supabase.from("cart_items").select("product_id, quantity").eq("user_id", session.user.id);
-          if (cartData) {
-            setCart(cartData.map(c => ({ id: c.product_id, qty: c.quantity })));
-          }
-
-          // Fetch cloud wishlist
-          const { data: wishData } = await supabase.from("wishlists").select("product_id").eq("user_id", session.user.id);
-          if (wishData) {
-            setWishlist(wishData.map(w => w.product_id));
-          }
-        } catch (err) {
-          console.warn("Cloud sync warning:", err);
+    let subscription: any;
+    
+    const initSync = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        setUserId(session.user.id);
+        
+        // Fetch cloud cart
+        const { data: cartData } = await supabase.from("cart_items").select("product_id, quantity").eq("user_id", session.user.id);
+        if (cartData) {
+          setCart(cartData.map(c => ({ id: c.product_id, qty: c.quantity })));
+        }
+        
+        // Fetch cloud wishlist
+        const { data: wishData } = await supabase.from("wishlists").select("product_id").eq("user_id", session.user.id);
+        if (wishData) {
+          setWishlist(wishData.map(w => w.product_id));
         }
       } else {
         // Fallback to local storage if not logged in
@@ -127,20 +123,17 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       }
       setReady(true);
     };
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      initSync(session);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const newId = session?.user?.id || null;
-      if (newId !== userIdRef.current) {
-        initSync(session);
+    
+    initSync();
+    
+    const { data } = supabase.auth.onAuthStateChange((_, session) => {
+      if (session?.user.id !== userId) {
+        initSync();
       }
     });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    
+    return () => data.subscription.unsubscribe();
+  }, [userId]);
 
   // 3. Local storage persistence (for anon users or non-synced data)
   useEffect(() => {

@@ -1,193 +1,301 @@
 import { supabase } from "./supabase";
 
-interface SendEmailOptions {
-  type: "order_confirmation" | "order_shipped" | "order_delivered" | "order_cancelled" | "welcome" | "new_arrival";
-  to: string;
-  customerName: string;
-  orderNumber?: string;
-  orderTotal?: number;
-  items?: Array<{ name: string; qty: number; price: number; image?: string }>;
-  shippingAddress?: {
-    line: string;
-    city: string;
-    state: string;
-    pincode: string;
-  };
-  paymentMethod?: string;
-  trackingNumber?: string;
-  estimatedDelivery?: string;
-  productName?: string;
-  productSlug?: string;
-  price?: number;
-  image?: string;
-  category?: string;
+const BRAND = {
+  name: "ElegantlyWoven",
+  tagline: "Luxury Handloom Atelier",
+  color: "#7c3d2b",
+  gold: "#D4AF37",
+  url: "https://elegantlywoven.com",
+};
+
+/** Shared luxury HTML email shell */
+function emailShell(content: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${BRAND.name}</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f0eb;font-family:'Georgia',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <tr>
+          <td style="background:${BRAND.color};padding:32px 40px;text-align:center;">
+            <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:400;letter-spacing:3px;text-transform:uppercase;">${BRAND.name}</h1>
+            <p style="margin:6px 0 0;color:${BRAND.gold};font-size:11px;letter-spacing:4px;text-transform:uppercase;">${BRAND.tagline}</p>
+          </td>
+        </tr>
+        <!-- Content -->
+        <tr>
+          <td style="padding:40px;">
+            ${content}
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="background:#1c1917;padding:24px 40px;text-align:center;">
+            <p style="margin:0;color:#a8a29e;font-size:11px;letter-spacing:1px;">© ${new Date().getFullYear()} ${BRAND.name} · Luxury Handloom Atelier</p>
+            <p style="margin:8px 0 0;color:#78716c;font-size:11px;">You received this because you placed an order or opted in to our updates.</p>
+            <p style="margin:8px 0 0;">
+              <a href="${BRAND.url}" style="color:${BRAND.gold};font-size:11px;text-decoration:none;">Visit Store</a>
+              &nbsp;·&nbsp;
+              <a href="${BRAND.url}/account/notifications" style="color:${BRAND.gold};font-size:11px;text-decoration:none;">Manage Preferences</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 }
 
-function inr(amount: number) {
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
+/** Call the Supabase Edge Function to send email */
+async function sendEmail(to: string, subject: string, html: string, bcc?: string[]): Promise<boolean> {
+  try {
+    const { error } = await supabase.functions.invoke("send-email", {
+      body: { to, subject, html, bcc },
+    });
+    if (error) {
+      console.error("Email send error:", error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Email invoke error:", err);
+    return false;
+  }
 }
 
-function generateEmailHTML(options: SendEmailOptions): { subject: string; html: string } {
-  const brandColor = "#8B3A2A";
-  const goldColor = "#C9A84C";
-  const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://elegantlywoven.com";
+// ─────────────────────────────────────────────────────────
+// ORDER CONFIRMATION EMAIL
+// ─────────────────────────────────────────────────────────
+export async function sendOrderConfirmationEmail(order: {
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  total_amount: number;
+  subtotal: number;
+  tax_amount: number;
+  shipping_charge: number;
+  payment_method: string;
+  items: Array<{ name: string; price: number; quantity?: number; qty?: number }>;
+  shipping_address: { line?: string; city?: string; state?: string; pincode?: string } | string;
+}): Promise<boolean> {
+  if (!order.customer_email) return false;
 
-  const baseStyle = `font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; background: #FAFAF7; border: 1px solid #E8E4DC; border-radius: 12px; overflow: hidden;`;
-  const header = `
-    <div style="background: ${brandColor}; padding: 32px 40px; text-align: center;">
-      <h1 style="margin: 0; color: white; font-size: 28px; letter-spacing: 2px;">ElegantlyWoven</h1>
-      <p style="margin: 4px 0 0; color: rgba(255,255,255,0.75); font-size: 11px; letter-spacing: 4px; text-transform: uppercase; font-family: Arial, sans-serif;">Luxury Handloom Atelier</p>
+  const itemsRows = (order.items || []).map((it) => `
+    <tr>
+      <td style="padding:10px 0;border-bottom:1px solid #f0ebe5;font-size:14px;color:#3d2b1a;">${it.name}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #f0ebe5;font-size:14px;color:#6b5a4e;text-align:center;">${it.quantity || it.qty || 1}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #f0ebe5;font-size:14px;color:#3d2b1a;text-align:right;">₹${((it.price || 0) * (it.quantity || it.qty || 1)).toLocaleString("en-IN")}</td>
+    </tr>`).join("");
+
+  const addr = typeof order.shipping_address === "object"
+    ? `${order.shipping_address?.line || ""}, ${order.shipping_address?.city || ""}, ${order.shipping_address?.state || ""} ${order.shipping_address?.pincode || ""}`
+    : order.shipping_address || "On file";
+
+  const content = `
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="display:inline-block;background:#d4af3720;border:1px solid ${BRAND.gold};border-radius:50px;padding:8px 24px;">
+        <span style="color:${BRAND.gold};font-size:12px;letter-spacing:2px;text-transform:uppercase;">✓ Order Confirmed</span>
+      </div>
     </div>
-  `;
-  const footer = `
-    <div style="background: #1C1917; padding: 24px 40px; text-align: center;">
-      <p style="margin: 0; color: rgba(255,255,255,0.5); font-size: 11px; font-family: Arial, sans-serif;">
-        ElegantlyWoven · Luxury Handlooms<br/>
-        Need help? Reply to this email or WhatsApp us at +91 98800 11223<br/>
-        <a href="${siteUrl}/privacy-policy" style="color: ${goldColor}; text-decoration: none;">Privacy Policy</a> · 
-        <a href="${siteUrl}/terms" style="color: ${goldColor}; text-decoration: none;">Terms & Conditions</a>
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#1c1917;">Thank you, ${order.customer_name || "Valued Customer"}!</h2>
+    <p style="margin:0 0 24px;color:#6b5a4e;font-size:14px;line-height:1.7;">Your order has been received and is being processed. We'll send you a shipping update once your saree is dispatched.</p>
+
+    <div style="background:#faf7f4;border-radius:8px;padding:20px;margin-bottom:24px;">
+      <p style="margin:0;font-size:12px;color:#a8a29e;letter-spacing:2px;text-transform:uppercase;">Order Reference</p>
+      <p style="margin:6px 0 0;font-size:24px;color:${BRAND.color};font-weight:600;letter-spacing:1px;">#${order.order_number}</p>
+    </div>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <th style="text-align:left;font-size:11px;color:#a8a29e;letter-spacing:2px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f0ebe5;">Item</th>
+        <th style="text-align:center;font-size:11px;color:#a8a29e;letter-spacing:2px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f0ebe5;">Qty</th>
+        <th style="text-align:right;font-size:11px;color:#a8a29e;letter-spacing:2px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f0ebe5;">Amount</th>
+      </tr>
+      ${itemsRows || `<tr><td colspan="3" style="padding:12px 0;color:#6b5a4e;font-size:14px;">Handcrafted Saree Order</td></tr>`}
+    </table>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr><td style="font-size:13px;color:#6b5a4e;padding:4px 0;">Subtotal</td><td style="text-align:right;font-size:13px;color:#3d2b1a;">₹${(order.subtotal || 0).toLocaleString("en-IN")}</td></tr>
+      <tr><td style="font-size:13px;color:#6b5a4e;padding:4px 0;">GST (5%)</td><td style="text-align:right;font-size:13px;color:#3d2b1a;">₹${(order.tax_amount || 0).toLocaleString("en-IN")}</td></tr>
+      <tr><td style="font-size:13px;color:#6b5a4e;padding:4px 0;">Shipping</td><td style="text-align:right;font-size:13px;color:#3d2b1a;">${order.shipping_charge ? `₹${order.shipping_charge.toLocaleString("en-IN")}` : "FREE"}</td></tr>
+      <tr>
+        <td style="font-size:16px;font-weight:700;color:#1c1917;padding:12px 0 4px;border-top:2px solid #f0ebe5;">Total Paid</td>
+        <td style="text-align:right;font-size:18px;font-weight:700;color:${BRAND.color};padding:12px 0 4px;border-top:2px solid #f0ebe5;">₹${(order.total_amount || 0).toLocaleString("en-IN")}</td>
+      </tr>
+    </table>
+
+    <div style="background:#faf7f4;border-radius:8px;padding:20px;margin-bottom:28px;">
+      <p style="margin:0;font-size:11px;color:#a8a29e;letter-spacing:2px;text-transform:uppercase;">Delivery Address</p>
+      <p style="margin:8px 0 0;font-size:14px;color:#3d2b1a;line-height:1.6;">${addr}</p>
+      <p style="margin:8px 0 0;font-size:12px;color:#a8a29e;">Payment: ${order.payment_method || "UPI"}</p>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="${BRAND.url}/account/orders" style="display:inline-block;background:${BRAND.color};color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:12px;letter-spacing:3px;text-transform:uppercase;">Track My Order</a>
+    </div>`;
+
+  return sendEmail(
+    order.customer_email,
+    `✨ Order Confirmed — #${order.order_number} | ElegantlyWoven`,
+    emailShell(content)
+  );
+}
+
+// ─────────────────────────────────────────────────────────
+// SHIPPING UPDATE EMAIL
+// ─────────────────────────────────────────────────────────
+export async function sendShippingUpdateEmail(order: {
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  tracking_number?: string;
+  total_amount: number;
+}): Promise<boolean> {
+  if (!order.customer_email) return false;
+
+  const content = `
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="display:inline-block;background:#0f766e20;border:1px solid #0f766e;border-radius:50px;padding:8px 24px;">
+        <span style="color:#0f766e;font-size:12px;letter-spacing:2px;text-transform:uppercase;">🚚 Order Shipped</span>
+      </div>
+    </div>
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#1c1917;">Your saree is on its way!</h2>
+    <p style="margin:0 0 24px;color:#6b5a4e;font-size:14px;line-height:1.7;">Great news, ${order.customer_name || "Valued Customer"}! Your order <strong>#${order.order_number}</strong> has been shipped and is headed to you.</p>
+    ${order.tracking_number ? `
+    <div style="background:#faf7f4;border-radius:8px;padding:20px;margin-bottom:24px;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#a8a29e;letter-spacing:2px;text-transform:uppercase;">Tracking Number</p>
+      <p style="margin:8px 0 0;font-size:20px;color:${BRAND.color};font-weight:600;letter-spacing:2px;">${order.tracking_number}</p>
+    </div>` : ""}
+    <div style="background:#faf7f4;border-radius:8px;padding:20px;margin-bottom:28px;">
+      <p style="margin:0;font-size:14px;color:#3d2b1a;line-height:1.7;">📦 Expected delivery: <strong>3–5 business days</strong><br/>Your package is handled with care and is insured during transit.</p>
+    </div>
+    <div style="text-align:center;">
+      <a href="${BRAND.url}/track-order" style="display:inline-block;background:${BRAND.color};color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:12px;letter-spacing:3px;text-transform:uppercase;">Track My Order</a>
+    </div>`;
+
+  return sendEmail(
+    order.customer_email,
+    `🚚 Your Order #${order.order_number} Has Been Shipped — ElegantlyWoven`,
+    emailShell(content)
+  );
+}
+
+// ─────────────────────────────────────────────────────────
+// DELIVERY CONFIRMATION EMAIL
+// ─────────────────────────────────────────────────────────
+export async function sendDeliveryEmail(order: {
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  total_amount: number;
+}): Promise<boolean> {
+  if (!order.customer_email) return false;
+
+  const content = `
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="display:inline-block;background:#d4af3720;border:1px solid ${BRAND.gold};border-radius:50px;padding:8px 24px;">
+        <span style="color:${BRAND.gold};font-size:12px;letter-spacing:2px;text-transform:uppercase;">✅ Delivered</span>
+      </div>
+    </div>
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#1c1917;">Your saree has arrived! 🎉</h2>
+    <p style="margin:0 0 24px;color:#6b5a4e;font-size:14px;line-height:1.7;">Dear ${order.customer_name || "Valued Customer"}, your order <strong>#${order.order_number}</strong> has been delivered. We hope you love your saree!</p>
+    <div style="background:#faf7f4;border-radius:8px;padding:20px;margin-bottom:24px;">
+      <p style="margin:0;font-size:14px;color:#3d2b1a;line-height:1.8;">
+        🌟 <strong>Enjoy your saree!</strong><br/>
+        If anything is not right, our 7-day return policy has you covered.<br/><br/>
+        Please share your experience — your review helps other customers and our weavers.
       </p>
     </div>
-  `;
+    <div style="text-align:center;margin-bottom:16px;">
+      <a href="${BRAND.url}/account/orders" style="display:inline-block;background:${BRAND.color};color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:12px;letter-spacing:3px;text-transform:uppercase;">Write a Review</a>
+    </div>
+    <div style="text-align:center;">
+      <a href="${BRAND.url}/collections" style="display:inline-block;border:1px solid ${BRAND.color};color:${BRAND.color};text-decoration:none;padding:12px 28px;border-radius:50px;font-size:12px;letter-spacing:3px;text-transform:uppercase;">Shop New Arrivals</a>
+    </div>`;
 
-  if (options.type === "new_arrival") {
-    const prodImg = options.image || "https://images.unsplash.com/photo-1610189014163-54942d512a81?w=600&q=80";
-    const prodUrl = `${siteUrl}/product/${options.productSlug || ""}`;
-
-    return {
-      subject: `✨ New Arrival: ${options.productName || "Luxury Saree"} — ElegantlyWoven`,
-      html: `
-        <div style="${baseStyle}">
-          ${header}
-          <div style="padding: 40px; text-align: center;">
-            <span style="background: #F5E6C8; color: #8B3A2A; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; padding: 4px 12px; border-radius: 99px; text-transform: uppercase; letter-spacing: 2px;">
-              New Collection Drop
-            </span>
-            <h2 style="color: ${brandColor}; margin: 16px 0 8px; font-size: 24px;">${options.productName}</h2>
-            <p style="color: #666; font-family: Arial, sans-serif; font-size: 14px; margin: 0 0 24px;">
-              Discover our newest handcrafted ${options.category || "handloom"} saree, woven with pure silk & certified zari.
-            </p>
-
-            <div style="margin: 20px 0; overflow: hidden; border-radius: 12px; border: 1px solid #E8E4DC;">
-              <img src="${prodImg}" alt="${options.productName}" style="width: 100%; max-height: 380px; object-fit: cover; display: block;" />
-              <div style="padding: 16px; background: #FFF8F0; text-align: center;">
-                <p style="margin: 0; font-family: Georgia, serif; font-size: 22px; color: ${brandColor}; font-weight: bold;">
-                  ${options.price ? inr(options.price) : ""}
-                </p>
-                <p style="margin: 4px 0 0; font-family: Arial, sans-serif; font-size: 12px; color: #888;">
-                  Limited loom stock · Inclusive of all taxes & free shipping
-                </p>
-              </div>
-            </div>
-
-            <div style="text-align: center; margin: 32px 0;">
-              <a href="${prodUrl}" style="background: ${brandColor}; color: white; padding: 14px 36px; border-radius: 999px; text-decoration: none; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; font-family: Arial, sans-serif; display: inline-block;">
-                View Saree & Order Now
-              </a>
-            </div>
-          </div>
-          ${footer}
-        </div>
-      `,
-    };
-  }
-
-  if (options.type === "welcome") {
-    return {
-      subject: `Welcome to ElegantlyWoven, ${options.customerName}! 🌸`,
-      html: `
-        <div style="${baseStyle}">
-          ${header}
-          <div style="padding: 40px;">
-            <h2 style="color: ${brandColor}; margin: 0 0 16px;">Welcome, ${options.customerName}! 🎉</h2>
-            <p style="color: #555; font-family: Arial, sans-serif; line-height: 1.6;">
-              Your account has been created successfully. Enjoy 15% off your first luxury drape using code <strong>WOVEN15</strong>.
-            </p>
-            <div style="text-align: center; margin: 32px 0;">
-              <a href="${siteUrl}/collections" style="background: ${brandColor}; color: white; padding: 14px 36px; border-radius: 999px; text-decoration: none; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; font-family: Arial, sans-serif; display: inline-block;">
-                Explore Handloom Sarees
-              </a>
-            </div>
-          </div>
-          ${footer}
-        </div>
-      `,
-    };
-  }
-
-  // Fallback for order confirmation
-  const itemsHtml = (options.items || []).map((item) => `
-    <tr style="border-bottom: 1px solid #E8E4DC;">
-      <td style="padding: 12px 8px; font-family: Arial, sans-serif; font-size: 13px; color: #333;">${item.name}</td>
-      <td style="padding: 12px 8px; text-align: center; font-family: Arial, sans-serif; font-size: 13px; color: #666;">${item.qty}</td>
-      <td style="padding: 12px 8px; text-align: right; font-family: Arial, sans-serif; font-size: 13px; color: #333; font-weight: bold;">${inr(item.price * item.qty)}</td>
-    </tr>
-  `).join("");
-
-  return {
-    subject: `✅ Order Confirmed: #${options.orderNumber || "EW"} — ElegantlyWoven`,
-    html: `
-      <div style="${baseStyle}">
-        ${header}
-        <div style="padding: 40px;">
-          <h2 style="color: ${brandColor}; margin: 0 0 4px;">Order #${options.orderNumber}</h2>
-          <p style="color: #555; font-family: Arial, sans-serif;">Dear <strong>${options.customerName}</strong>, thank you for shopping with ElegantlyWoven!</p>
-          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #E8E4DC; border-radius: 8px;">
-            <thead>
-              <tr style="background: #F5F0EA;">
-                <th style="padding: 12px 8px; text-align: left; font-family: Arial, sans-serif; font-size: 11px;">Item</th>
-                <th style="padding: 12px 8px; text-align: center; font-family: Arial, sans-serif; font-size: 11px;">Qty</th>
-                <th style="padding: 12px 8px; text-align: right; font-family: Arial, sans-serif; font-size: 11px;">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-              <tr style="background: #F5F0EA; font-weight: bold;">
-                <td colspan="2" style="padding: 12px 8px; font-family: Arial, sans-serif; font-size: 14px;">Total Paid</td>
-                <td style="padding: 12px 8px; text-align: right; font-family: Georgia, serif; font-size: 18px; color: ${brandColor};">${inr(options.orderTotal || 0)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="${siteUrl}/account/orders" style="background: ${brandColor}; color: white; padding: 14px 36px; border-radius: 999px; text-decoration: none; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; font-family: Arial, sans-serif; display: inline-block;">
-              Track Order
-            </a>
-          </div>
-        </div>
-        ${footer}
-      </div>
-    `,
-  };
+  return sendEmail(
+    order.customer_email,
+    `✅ Delivered — Order #${order.order_number} | ElegantlyWoven`,
+    emailShell(content)
+  );
 }
 
-export async function sendOrderEmail(options: SendEmailOptions): Promise<void> {
-  try {
-    // 1. First try Supabase Edge Function
-    const { error } = await supabase.functions.invoke("send-order-email", {
-      body: options,
-    });
+// ─────────────────────────────────────────────────────────
+// NEW COLLECTION UPDATE EMAIL (Newsletter)
+// ─────────────────────────────────────────────────────────
+export async function sendCollectionUpdateEmail(product: {
+  name: string;
+  description?: string;
+  price: number;
+  mrp?: number;
+  category?: string;
+  weave?: string;
+  images?: string[];
+  slug?: string;
+  id?: string;
+}): Promise<number> {
+  // Fetch all opted-in users
+  const { data: subscribers } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("collection_updates_opt_in", true)
+    .not("email", "is", null);
 
-    if (!error) return;
+  if (!subscribers || subscribers.length === 0) return 0;
 
-    // 2. Fallback: Direct Resend REST API fetch if edge function fails/is not deployed
-    const apiKey = import.meta.env.VITE_RESEND_API_KEY || "";
-    if (apiKey) {
-      const { subject, html } = generateEmailHTML(options);
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "onboarding@resend.dev",
-          to: [options.to],
-          subject,
-          html,
-        }),
-      });
-    }
-  } catch (err) {
-    console.warn("Email send notice (non-critical):", err);
+  const emails = subscribers.map((s) => s.email).filter(Boolean) as string[];
+  const productLink = `${BRAND.url}/product/${product.slug || product.id || "new"}`;
+  const discount = product.mrp && product.mrp > product.price
+    ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
+    : 0;
+
+  const content = `
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="display:inline-block;background:#d4af3720;border:1px solid ${BRAND.gold};border-radius:50px;padding:8px 24px;">
+        <span style="color:${BRAND.gold};font-size:12px;letter-spacing:2px;text-transform:uppercase;">✨ New Arrival</span>
+      </div>
+    </div>
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#1c1917;">A new treasure has arrived</h2>
+    <p style="margin:0 0 28px;color:#6b5a4e;font-size:14px;line-height:1.7;">Our artisans have crafted something beautiful for you. Exclusively available now at ElegantlyWoven.</p>
+    ${product.images?.[0] ? `
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="${product.images[0]}" alt="${product.name}" style="max-width:100%;width:400px;height:500px;object-fit:cover;border-radius:12px;display:block;margin:0 auto;" />
+    </div>` : ""}
+    <div style="text-align:center;margin-bottom:24px;">
+      <p style="margin:0;font-size:12px;color:#a8a29e;letter-spacing:3px;text-transform:uppercase;">${product.weave || ""} ${product.category || "Saree"}</p>
+      <h3 style="margin:8px 0;font-size:24px;font-weight:400;color:#1c1917;">${product.name}</h3>
+      <div style="display:flex;justify-content:center;align-items:baseline;gap:12px;margin:12px 0;">
+        <span style="font-size:24px;font-weight:700;color:${BRAND.color};">₹${product.price.toLocaleString("en-IN")}</span>
+        ${product.mrp ? `<span style="font-size:16px;color:#a8a29e;text-decoration:line-through;">₹${product.mrp.toLocaleString("en-IN")}</span>` : ""}
+        ${discount > 0 ? `<span style="font-size:13px;color:#0f766e;font-weight:600;">${discount}% off</span>` : ""}
+      </div>
+      ${product.description ? `<p style="margin:0;color:#6b5a4e;font-size:13px;line-height:1.7;max-width:480px;margin:0 auto;">${product.description.slice(0, 200)}...</p>` : ""}
+    </div>
+    <div style="text-align:center;margin-bottom:16px;">
+      <a href="${productLink}" style="display:inline-block;background:${BRAND.color};color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:12px;letter-spacing:3px;text-transform:uppercase;">View This Saree</a>
+    </div>
+    <p style="text-align:center;font-size:11px;color:#a8a29e;margin-top:24px;">Limited stock available. This saree is handcrafted by master weavers.</p>`;
+
+  // Send to first subscriber directly, rest as BCC (to protect privacy)
+  if (emails.length === 1) {
+    const sent = await sendEmail(emails[0]!, `✨ New Arrival: ${product.name} | ElegantlyWoven`, emailShell(content));
+    return sent ? 1 : 0;
   }
+
+  // Send to first email, BCC the rest
+  const [first, ...rest] = emails;
+  const sent = await sendEmail(
+    first!,
+    `✨ New Arrival: ${product.name} | ElegantlyWoven`,
+    emailShell(content),
+    rest
+  );
+  return sent ? emails.length : 0;
 }

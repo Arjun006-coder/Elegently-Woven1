@@ -27,10 +27,11 @@ export const Route = createFileRoute("/cart")({
 });
 
 function CartPage() {
-  const { lines, setQty, removeFromCart, subtotal, toggleWishlist } = useShop();
+  const { lines, setQty, removeFromCart, addToCart, subtotal, toggleWishlist } = useShop();
   const [coupon, setCoupon] = useState("");
   const [applied, setApplied] = useState<{ code: string; value: number } | null>(null);
   const [giftWrap, setGiftWrap] = useState(false);
+  const [savedForLater, setSavedForLater] = useState<Array<{ product: any; qty: number }>>([]);
 
   const wrapFee = giftWrap ? 249 : 0;
   const discountValue = applied?.value ?? 0;
@@ -39,7 +40,19 @@ function CartPage() {
   const gst = Math.round(taxable * 0.05);
   const total = taxable + gst + shipping + wrapFee;
 
-  if (!lines.length) {
+  const handleSaveForLater = (line: { product: any; qty: number }) => {
+    setSavedForLater((prev) => [...prev, line]);
+    removeFromCart(line.product.id);
+    toast.success("Saved for later", { description: line.product.name });
+  };
+
+  const handleMoveToBag = (line: { product: any; qty: number }) => {
+    addToCart(line.product.id, line.qty);
+    setSavedForLater((prev) => prev.filter((item) => item.product.id !== line.product.id));
+    toast.success("Moved back to bag", { description: line.product.name });
+  };
+
+  if (!lines.length && !savedForLater.length) {
     return (
       <SiteLayout>
         <EmptyState
@@ -56,7 +69,7 @@ function CartPage() {
     <SiteLayout>
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8">
         <h1 className="text-3xl font-light sm:text-4xl">Shopping bag</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{lines.length} saree(s) reserved for 60 minutes</p>
+        <p className="mt-2 text-sm text-muted-foreground">{lines.length} saree(s) in your bag</p>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]">
           <div className="space-y-6">
@@ -101,7 +114,7 @@ function CartPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => toast("Saved for later")}
+                      onClick={() => handleSaveForLater({ product, qty })}
                       className="text-xs text-muted-foreground hover:text-primary"
                     >
                       Save for later
@@ -117,6 +130,31 @@ function CartPage() {
                 </div>
               </article>
             ))}
+
+            {savedForLater.length > 0 && (
+              <div className="mt-8 border-t border-border pt-6">
+                <h3 className="text-lg font-serif mb-4">Saved for later ({savedForLater.length})</h3>
+                <div className="space-y-4">
+                  {savedForLater.map(({ product, qty }) => (
+                    <article key={product.id} className="flex gap-4 rounded-xl border border-border/60 p-4 bg-muted/20">
+                      <img src={product.images[0]} alt="" className="h-16 w-13 rounded-lg object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium truncate">{product.name}</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">{inr(product.price)}</p>
+                        <div className="mt-2 flex gap-4 text-xs">
+                          <button onClick={() => handleMoveToBag({ product, qty })} className="text-primary font-medium hover:underline">
+                            Move to bag
+                          </button>
+                          <button onClick={() => setSavedForLater((prev) => prev.filter((i) => i.product.id !== product.id))} className="text-muted-foreground hover:text-destructive">
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border/70 p-5 text-sm">
               <Checkbox checked={giftWrap} onCheckedChange={(v) => setGiftWrap(!!v)} className="mt-0.5" />
@@ -138,17 +176,19 @@ function CartPage() {
                 className="mt-5 flex gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (coupon.trim().toUpperCase() === "LUMA15") {
-                    setApplied({ code: "LUMA15", value: Math.round(subtotal * 0.15) });
-                    toast.success("Coupon applied!", {
-                      description: "15% off applied successfully.",
-                    });
+                  const code = coupon.trim().toUpperCase();
+                  if (["WOVEN15", "LUMA15", "ELEGANT15"].includes(code)) {
+                    setApplied({ code, value: Math.round(subtotal * 0.15) });
+                    toast.success("Coupon applied!", { description: "15% off applied successfully." });
+                  } else if (code === "WELCOME10") {
+                    setApplied({ code, value: Math.round(subtotal * 0.10) });
+                    toast.success("Coupon applied!", { description: "10% off applied successfully." });
                   } else {
-                    toast.error("Invalid coupon", { description: "Try LUMA15" });
+                    toast.error("Invalid coupon", { description: "Try WOVEN15 or LUMA15" });
                   }
                 }}
               >
-                <Input value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="Coupon code" aria-label="Coupon" className="rounded-full" />
+                <Input value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="Coupon code (e.g. WOVEN15)" aria-label="Coupon" className="rounded-full" />
                 <Button type="submit" variant="outline" className="rounded-full px-6">
                   Apply
                 </Button>

@@ -8,6 +8,8 @@ import { useShop } from "@/lib/store";
 import { Stars } from "./Bits";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { useTranslation } from "@/lib/i18n";
+
 export function ProductCardSkeleton() {
   return (
     <div className="space-y-3">
@@ -27,6 +29,7 @@ export function ProductCard({
   onQuickView?: (p: Product) => void;
 }) {
   const { addToCart, toggleWishlist, wishlist, toggleCompare, compare } = useShop();
+  const { t } = useTranslation();
   const [hover, setHover] = useState(false);
   const off = discount(product);
   const saved = wishlist.includes(product.id);
@@ -37,13 +40,14 @@ export function ProductCard({
     <motion.article
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -6, scale: 1.02 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative"
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative cursor-pointer"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="relative overflow-hidden rounded-2xl bg-secondary/50">
+      <div className="relative overflow-hidden rounded-2xl bg-secondary/50 shadow-soft transition-all duration-300 group-hover:shadow-lift group-hover:border-gold/30">
         <Link to="/product/$id" params={{ id: product.id }} aria-label={product.name}>
           <img
             src={hover ? secondary : primary}
@@ -114,7 +118,7 @@ export function ProductCard({
             className="flex w-full items-center justify-center gap-2 rounded-full bg-card/95 py-3 text-[11px] tracking-[0.2em] uppercase shadow-soft backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
           >
             <ShoppingBag className="h-3.5 w-3.5" />
-            {product.stock === 0 ? "Notify me" : "Quick add"}
+            {product.stock === 0 ? t("Sold out") : t("Quick add")}
           </button>
         </div>
       </div>

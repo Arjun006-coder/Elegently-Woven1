@@ -33,16 +33,26 @@ import { cn } from "@/lib/utils";
 
 // Notifications are now fetched live
 
+import { useTranslation, type LanguageCode } from "@/lib/i18n";
+
 export function Header() {
   const { cartCount, wishlist } = useShop();
+  const { language, setLanguage, t } = useTranslation();
   const [session, setSession] = useState<Session | null>(null);
   const { theme, toggle } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [lang, setLang] = useState("EN");
   const [isAdmin, setIsAdmin] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const langMap: Record<LanguageCode, string> = {
+    EN: "EN",
+    HI: "हिन्दी",
+    TA: "தமிழ்",
+    KN: "ಕನ್ನಡ",
+  };
 
   useEffect(() => {
     const checkSession = async () => {
@@ -136,7 +146,7 @@ export function Header() {
       >
         <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-4 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <Sheet>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger
                 aria-label="Open menu"
                 className="grid h-9 w-9 shrink-0 place-items-center rounded-full hover:bg-secondary lg:hidden"
@@ -152,7 +162,7 @@ export function Header() {
                       <ul className="mt-3 space-y-2 text-sm">
                         {group.items.map((i) => (
                           <li key={i.to}>
-                            <Link to={i.to} className="text-muted-foreground hover:text-foreground">
+                            <Link to={i.to} onClick={() => setMobileMenuOpen(false)} className="text-muted-foreground hover:text-foreground">
                               {i.label}
                             </Link>
                           </li>
@@ -160,8 +170,8 @@ export function Header() {
                       </ul>
                     </div>
                   ))}
-                  <Link to="/account" className="block border-t border-border pt-4 text-sm">
-                    My Account
+                  <Link to="/account" onClick={() => setMobileMenuOpen(false)} className="block border-t border-border pt-4 text-sm font-medium">
+                    {t("My Account")}
                   </Link>
                 </nav>
               </SheetContent>
@@ -179,7 +189,7 @@ export function Header() {
             {megaMenu.map((group) => (
               <div key={group.label} className="group relative">
                 <button type="button" className="flex items-center gap-1 py-2 hover:text-primary">
-                  {group.label} <ChevronDown className="h-3 w-3" />
+                  {t(group.label)} <ChevronDown className="h-3 w-3" />
                 </button>
                 <div className="invisible absolute top-full left-1/2 w-56 -translate-x-1/2 rounded-2xl border border-border/70 bg-card p-4 opacity-0 shadow-lift transition-all duration-200 group-hover:visible group-hover:opacity-100">
                   <ul className="space-y-2 text-[13px] tracking-normal normal-case">
@@ -189,7 +199,7 @@ export function Header() {
                           to={i.to}
                           className="block rounded-lg px-2 py-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                         >
-                          {i.label}
+                          {t(i.label)}
                         </Link>
                       </li>
                     ))}
@@ -197,8 +207,8 @@ export function Header() {
                 </div>
               </div>
             ))}
-            <Link to="/sale" className="text-primary hover:opacity-80">
-              Offers
+            <Link to="/sale" className="text-primary hover:opacity-80 font-medium">
+              {t("Offers")}
             </Link>
           </nav>
 
@@ -215,14 +225,21 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label="Language"
-                className="hidden h-9 w-9 place-items-center rounded-full hover:bg-secondary sm:grid"
+                className="hidden h-9 w-9 place-items-center rounded-full hover:bg-secondary sm:grid font-xs font-medium"
               >
-                <Globe className="h-[18px] w-[18px]" />
+                <span className="text-[11px] font-mono uppercase">{language}</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {["EN", "हिन्दी", "தமிழ்", "ಕನ್ನಡ"].map((l) => (
-                  <DropdownMenuItem key={l} onClick={() => setLang(l)}>
-                    {l} {lang === l ? "·" : ""}
+                {(
+                  [
+                    { code: "EN", label: "English (EN)" },
+                    { code: "HI", label: "हिन्दी (HI)" },
+                    { code: "TA", label: "தமிழ் (TA)" },
+                    { code: "KN", label: "ಕನ್ನಡ (KN)" },
+                  ] as const
+                ).map((item) => (
+                  <DropdownMenuItem key={item.code} onClick={() => setLanguage(item.code)}>
+                    {item.label} {language === item.code ? "✓" : ""}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -311,7 +328,7 @@ export function Header() {
                       <Link to="/account">Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/orders">My Orders</Link>
+                      <Link to="/account/orders">My Orders</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/wishlist">Wishlist</Link>

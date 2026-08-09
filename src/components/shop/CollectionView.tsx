@@ -147,7 +147,7 @@ export function CollectionView({
 
   const clear = () => {
     setSelected({});
-    setPrice([2000, 80000]);
+    setPrice([0, 200000]);
     setInStock(false);
   };
 

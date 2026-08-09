@@ -29,8 +29,76 @@ const steps = [
   { icon: Home, label: "Delivered", note: "In 3 – 4 days" },
 ];
 
+import { useState, useEffect } from "react";
+
 function OrderSuccess() {
-  const orderId = "MS-" + String(Math.floor(100000 + Math.random() * 899999));
+  const [orderInfo, setOrderInfo] = useState<any>(null);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("ew_last_order");
+      if (raw) {
+        setOrderInfo(JSON.parse(raw));
+      }
+    } catch { /* fallback */ }
+  }, []);
+
+  const orderId = orderInfo?.orderNumber || "EW-" + String(Math.floor(100000 + Math.random() * 899999));
+
+  const handleDownloadInvoice = () => {
+    const totalAmt = orderInfo?.total || 14999;
+    const sub = orderInfo?.subtotal || 14000;
+    const tax = orderInfo?.gst || 700;
+
+    const invoiceContent = `
+===================================================================
+                       ELEGANTLYWOVEN
+                 TAX INVOICE / ORDER RECEIPT
+===================================================================
+Invoice No: INV-${orderId}
+Date: ${new Date().toLocaleDateString("en-IN")}
+Order Reference: ${orderId}
+GSTIN: 29AAAAA0000A1Z5
+
+-------------------------------------------------------------------
+CUSTOMER & ORDER DETAILS
+-------------------------------------------------------------------
+Payment Method: ${orderInfo?.method?.toUpperCase() || "ONLINE"}
+Payment Status: CONFIRMED (PAID)
+
+ITEMS:
+${
+  orderInfo?.items?.length
+    ? orderInfo.items.map((i: any) => `- ${i.name} (Qty: ${i.qty}) : ₹${i.price * i.qty}`).join("\n")
+    : "- Handcrafted Kanjivaram Silk Saree (Qty: 1) : ₹" + sub
+}
+
+-------------------------------------------------------------------
+SUMMARY
+-------------------------------------------------------------------
+Subtotal: ₹${sub}
+GST (5%): ₹${tax}
+Shipping: ${orderInfo?.shipping ? "₹" + orderInfo.shipping : "FREE"}
+TOTAL AMOUNT PAID: ₹${totalAmt}
+
+===================================================================
+Thank you for shopping with ElegantlyWoven — Handloom Atelier
+Support: support@elegantlywoven.com | +91 98450 22110
+===================================================================
+`;
+
+    const blob = new Blob([invoiceContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Invoice_${orderId}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast.success("GST Invoice Downloaded", { description: `File Invoice_${orderId}.txt saved.` });
+  };
 
   return (
     <SiteLayout>
@@ -40,8 +108,26 @@ function OrderSuccess() {
         </span>
         <h1 className="mt-8 text-3xl font-light sm:text-4xl">Thank you — your order is confirmed</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Order <span className="text-foreground">{orderId}</span> · A confirmation has been sent to your email and WhatsApp.
+          Order <span className="font-semibold text-foreground">{orderId}</span> · A confirmation has been sent to your registered email.
         </p>
+
+        {orderInfo?.items?.length ? (
+          <div className="mt-8 mx-auto max-w-md rounded-2xl border border-border/70 p-5 text-left bg-card">
+            <p className="eyebrow">Order Items</p>
+            <ul className="mt-3 space-y-2 text-sm">
+              {orderInfo.items.map((item: any, i: number) => (
+                <li key={i} className="flex justify-between">
+                  <span className="truncate">{item.name} (x{item.qty})</span>
+                  <span className="font-medium">₹{item.price * item.qty}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 pt-3 border-t border-border flex justify-between font-serif text-lg font-semibold">
+              <span>Total Paid</span>
+              <span>₹{orderInfo.total}</span>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-12 grid gap-6 text-left sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((s, i) => (
@@ -57,8 +143,8 @@ function OrderSuccess() {
           <Button asChild size="lg" className="rounded-full tracking-[0.16em] uppercase">
             <Link to="/track-order">Track order</Link>
           </Button>
-          <Button variant="outline" size="lg" className="rounded-full" onClick={() => toast.success("Invoice downloaded")}>
-            <Download className="mr-2 h-4 w-4" /> Invoice
+          <Button variant="outline" size="lg" className="rounded-full" onClick={handleDownloadInvoice}>
+            <Download className="mr-2 h-4 w-4" /> Download Invoice
           </Button>
           <Button asChild variant="ghost" size="lg" className="rounded-full">
             <Link to="/collections">Continue shopping</Link>

@@ -137,13 +137,15 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
   // 3. Local storage persistence (for anon users or non-synced data)
   useEffect(() => {
-    if (!ready) return;
-    if (!userId) {
-      localStorage.setItem(KEY, JSON.stringify({ cart, wishlist, compare, recent }));
-    } else {
-      // Still persist compare/recent locally as they aren't cloud synced yet
-      localStorage.setItem(KEY, JSON.stringify({ cart: [], wishlist: [], compare, recent }));
-    }
+    if (!ready || typeof window === "undefined") return;
+    try {
+      if (!userId) {
+        localStorage.setItem(KEY, JSON.stringify({ cart, wishlist, compare, recent }));
+      } else {
+        // Still persist compare/recent locally as they aren't cloud synced yet
+        localStorage.setItem(KEY, JSON.stringify({ cart: [], wishlist: [], compare, recent }));
+      }
+    } catch { /* ignore */ }
   }, [cart, wishlist, compare, recent, ready, userId]);
 
   // Resolve product either from live DB or fallback to mock data
@@ -159,11 +161,15 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     
     // Cloud sync
     if (userId) {
-      const { data: existing } = await supabase.from("cart_items").select("quantity").eq("user_id", userId).eq("product_id", id).single();
-      if (existing) {
-        await supabase.from("cart_items").update({ quantity: existing.quantity + qty }).eq("user_id", userId).eq("product_id", id);
-      } else {
-        await supabase.from("cart_items").insert({ user_id: userId, product_id: id, quantity: qty });
+      try {
+        const { data: existing } = await supabase.from("cart_items").select("quantity").eq("user_id", userId).eq("product_id", id).maybeSingle();
+        if (existing) {
+          await supabase.from("cart_items").update({ quantity: existing.quantity + qty }).eq("user_id", userId).eq("product_id", id);
+        } else {
+          await supabase.from("cart_items").insert({ user_id: userId, product_id: id, quantity: qty });
+        }
+      } catch (err) {
+        console.warn("Cloud cart sync warning:", err);
       }
     }
     
@@ -175,10 +181,14 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     setCart((c) => c.flatMap((l) => (l.id === id ? (qty <= 0 ? [] : [{ ...l, qty }]) : [l])));
     
     if (userId) {
-      if (qty <= 0) {
-        await supabase.from("cart_items").delete().eq("user_id", userId).eq("product_id", id);
-      } else {
-        await supabase.from("cart_items").update({ quantity: qty }).eq("user_id", userId).eq("product_id", id);
+      try {
+        if (qty <= 0) {
+          await supabase.from("cart_items").delete().eq("user_id", userId).eq("product_id", id);
+        } else {
+          await supabase.from("cart_items").update({ quantity: qty }).eq("user_id", userId).eq("product_id", id);
+        }
+      } catch (err) {
+        console.warn("Cloud cart update warning:", err);
       }
     }
   }, [userId]);
@@ -186,7 +196,11 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const removeFromCart = useCallback(async (id: string) => {
     setCart((c) => c.filter((l) => l.id !== id));
     if (userId) {
-      await supabase.from("cart_items").delete().eq("user_id", userId).eq("product_id", id);
+      try {
+        await supabase.from("cart_items").delete().eq("user_id", userId).eq("product_id", id);
+      } catch (err) {
+        console.warn("Cloud cart remove warning:", err);
+      }
     }
     toast("Removed from bag");
   }, [userId]);
@@ -194,7 +208,11 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const clearCart = useCallback(async () => {
     setCart([]);
     if (userId) {
-      await supabase.from("cart_items").delete().eq("user_id", userId);
+      try {
+        await supabase.from("cart_items").delete().eq("user_id", userId);
+      } catch (err) {
+        console.warn("Cloud cart clear warning:", err);
+      }
     }
   }, [userId]);
 
@@ -204,10 +222,14 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       
       // Async sync to cloud
       if (userId) {
-        if (has) {
-          supabase.from("wishlists").delete().eq("user_id", userId).eq("product_id", id).then();
-        } else {
-          supabase.from("wishlists").insert({ user_id: userId, product_id: id }).then();
+        try {
+          if (has) {
+            supabase.from("wishlists").delete().eq("user_id", userId).eq("product_id", id).then();
+          } else {
+            supabase.from("wishlists").insert({ user_id: userId, product_id: id }).then();
+          }
+        } catch (err) {
+          console.warn("Cloud wishlist sync warning:", err);
         }
       }
       
@@ -262,17 +284,24 @@ export function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const stored = localStorage.getItem("ew-theme") as "light" | "dark" | null;
-    const initial = stored ?? "light";
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem("ew-theme") as "light" | "dark" | null;
+      const initial = stored ?? "light";
+      setTheme(initial);
+      document.documentElement.classList.toggle("dark", initial === "dark");
+    } catch { /* fallback */ }
   }, []);
 
   const toggle = useCallback(() => {
     setTheme((t) => {
       const next = t === "dark" ? "light" : "dark";
-      localStorage.setItem("ew-theme", next);
-      document.documentElement.classList.toggle("dark", next === "dark");
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("ew-theme", next);
+          document.documentElement.classList.toggle("dark", next === "dark");
+        } catch { /* fallback */ }
+      }
       return next;
     });
   }, []);

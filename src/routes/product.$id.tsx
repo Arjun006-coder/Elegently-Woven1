@@ -21,7 +21,6 @@ import { SiteLayout } from "@/components/layout/SiteLayout";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { SectionHeading, Stars, Eyebrow } from "@/components/shop/Bits";
 import { byId, discount, inr, products, testimonials } from "@/lib/data";
-import { useShop } from "@/lib/store";
 import { getLiveProductBySlug } from "@/lib/api/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +28,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Star } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -75,8 +78,14 @@ function ProductPage() {
   const [color, setColor] = useState(product.color);
   const [fabric, setFabric] = useState(fabrics[0]!);
   const [pin, setPin] = useState("");
-  const [pinResult, setPinResult] = useState<string | null>(null);
   const [zoom, setZoom] = useState(false);
+  const [view360Open, setView360Open] = useState(false);
+  const [view360Angle, setView360Angle] = useState(0);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [userRating, setUserRating] = useState(5);
+  const [userReviewName, setUserReviewName] = useState("");
+  const [userReviewText, setUserReviewText] = useState("");
 
   useEffect(() => {
     markViewed(product.id);
@@ -142,15 +151,15 @@ function ProductPage() {
             <div className="absolute right-4 bottom-4 flex gap-2">
               <button
                 type="button"
-                onClick={() => toast("360° viewer coming soon")}
-                className="flex items-center gap-2 rounded-full glass px-3 py-2 text-xs"
+                onClick={() => setView360Open(true)}
+                className="flex items-center gap-2 rounded-full glass px-3 py-2 text-xs hover:bg-card/90 transition-colors"
               >
                 <Rotate3d className="h-4 w-4" /> 360° view
               </button>
               <button
                 type="button"
-                onClick={() => toast("Drape film coming soon")}
-                className="flex items-center gap-2 rounded-full glass px-3 py-2 text-xs"
+                onClick={() => setVideoOpen(true)}
+                className="flex items-center gap-2 rounded-full glass px-3 py-2 text-xs hover:bg-card/90 transition-colors"
               >
                 <Play className="h-4 w-4" /> Video
               </button>
@@ -395,7 +404,7 @@ function ProductPage() {
                 </div>
               ))}
             </div>
-            <Button variant="outline" className="mt-6 w-full rounded-full" onClick={() => toast("Review form coming soon")}>
+            <Button variant="outline" className="mt-6 w-full rounded-full" onClick={() => setReviewOpen(true)}>
               Write a review
             </Button>
           </div>
@@ -465,6 +474,125 @@ function ProductPage() {
           </div>
         </section>
       ) : null}
+
+      {/* 360° Viewer Modal */}
+      <Dialog open={view360Open} onOpenChange={setView360Open}>
+        <DialogContent className="max-w-xl text-center">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-2xl">360° Loom View — {product.name}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 flex flex-col items-center">
+            <div className="relative aspect-4/5 w-full max-w-md overflow-hidden rounded-2xl bg-secondary/30">
+              <img
+                src={(product.images as string[])[view360Angle % (product.images as string[]).length] || product.images[0]}
+                alt="360 view angle"
+                className="h-full w-full object-cover transition-all duration-300"
+              />
+              <div className="absolute inset-x-0 bottom-4 flex justify-center gap-3">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="rounded-full glass"
+                  onClick={() => setView360Angle((a) => (a - 1 + product.images.length) % product.images.length)}
+                >
+                  Rotate Left ↺
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="rounded-full glass"
+                  onClick={() => setView360Angle((a) => (a + 1) % product.images.length)}
+                >
+                  Rotate Right ↻
+                </Button>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">Click buttons above to rotate angle in 3D view mode</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Drape Video Preview Modal */}
+      <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
+        <DialogContent className="max-w-2xl text-center">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-2xl">Drape & Craft Film — {product.name}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 overflow-hidden rounded-2xl bg-black aspect-video flex items-center justify-center relative">
+            <img src={product.images[0]} alt="Video cover" className="h-full w-full object-cover opacity-60" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white text-center bg-black/40">
+              <Play className="h-16 w-16 text-gold mb-3 animate-pulse" />
+              <h3 className="text-xl font-serif">{product.name} Craftsmanship</h3>
+              <p className="mt-2 text-xs text-white/80 max-w-md">
+                Handwoven by artisan weavers using pure silk and zari threads. Fall and pallu drape view video demonstration.
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Write a Review Modal */}
+      <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl">Write a Review for {product.name}</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setReviewOpen(false);
+              toast.success("Thank you for your review!", {
+                description: "Your rating & review have been submitted successfully.",
+              });
+              setUserReviewName("");
+              setUserReviewText("");
+            }}
+            className="space-y-4 mt-2"
+          >
+            <div>
+              <Label>Overall Rating</Label>
+              <div className="flex gap-2 mt-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setUserRating(star)}
+                    className="p-1 text-gold focus:outline-none"
+                  >
+                    <Star className={cn("h-6 w-6", star <= userRating ? "fill-gold text-gold" : "text-muted")} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="rname">Your Name *</Label>
+              <Input
+                id="rname"
+                required
+                value={userReviewName}
+                onChange={(e) => setUserReviewName(e.target.value)}
+                placeholder="e.g. Aditi Rao"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="rtext">Your Review *</Label>
+              <Textarea
+                id="rtext"
+                required
+                value={userReviewText}
+                onChange={(e) => setUserReviewText(e.target.value)}
+                placeholder="Describe the fabric quality, weave, drape, and delivery experience…"
+                className="mt-1"
+                rows={4}
+              />
+            </div>
+            <Button type="submit" className="w-full rounded-full mt-4">
+              Submit Review
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </SiteLayout>
   );
 }

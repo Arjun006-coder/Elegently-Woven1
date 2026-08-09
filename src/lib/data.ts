@@ -1,3 +1,4 @@
+import showcaseData from "@/data/showcase.json";
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
 import hero3 from "@/assets/hero-3.jpg";
@@ -10,6 +11,8 @@ import p5 from "@/assets/p5.jpg";
 import p6 from "@/assets/p6.jpg";
 import p7 from "@/assets/p7.jpg";
 import p8 from "@/assets/p8.jpg";
+
+export { showcaseData };
 
 export const BRAND = {
   name: "ElegantlyWoven",
@@ -45,13 +48,45 @@ export type Product = {
   blouse: boolean;
   length: string;
   description: string;
+  origin?: string;
+  certification?: string;
+  craftsmanship?: string;
 };
+
+export const showcaseProducts: Product[] = showcaseData.sarees.map((item) => ({
+  id: item.id,
+  name: item.name,
+  weave: item.weave,
+  fabric: item.fabric,
+  occasion: item.weave.includes("Bridal") || item.name.includes("Bridal") ? "Bridal" : item.weave.includes("Festival") ? "Festival" : "Wedding",
+  color: item.color,
+  pattern: item.pattern,
+  border: item.border,
+  price: item.price,
+  mrp: item.mrp,
+  rating: item.rating,
+  reviews: item.reviews,
+  stock: item.stock,
+  images: item.images,
+  tags: [item.weave, item.fabric, item.color],
+  badge: item.badge as any,
+  blouse: item.blouseIncluded,
+  length: item.length,
+  description: item.description,
+  origin: item.origin,
+  certification: item.certification,
+  craftsmanship: item.craftsmanship,
+}));
 
 const seeds: Array<
   [string, string, string, string, string, string, number, number, number]
 > = [
-  ["Anantha Kanjivaram", "Kanjivaram", "Pure Mulberry Silk", "Wedding", "Maroon", "Zari Butta", 42500, 54000, 0],
-  ["Kashi Banarasi Jaal", "Banarasi", "Katan Silk", "Wedding", "Emerald", "Jaal", 28900, 36500, 1],
+  ["Kanjivaram Royal Gold", "Kanjivaram", "Pure Mulberry Silk", "Bridal", "Crimson", "Korvai Motifs", 42500, 52000, 0],
+  ["Banarasi Tanchoi Silk", "Banarasi", "Katan Silk", "Wedding", "Maroon", "Tanchoi Brocade", 32000, 39000, 1],
+  ["Chanderi Zari Tissue", "Silk", "Chanderi Silk", "Festival", "Gold", "Zari Boota", 14500, 19000, 2],
+  ["Bengal Baluchari Story", "Handloom", "Resham Silk", "Party", "Emerald", "Mythological Motifs", 21000, 27000, 3],
+  ["Mulberry Printed Drape", "Daily", "Mulberry Silk", "Daily", "Rose Gold", "Floral Block", 8900, 11500, 4],
+  ["Tussar Tribal Weave", "Handloom", "Tussar Silk", "Office", "Beige", "Tribal Stripe", 12800, 16500, 5],
   ["Champa Tissue Drape", "Tissue Silk", "Tissue Silk", "Party", "Champagne", "Plain", 18600, 24000, 2],
   ["Rangoli Handloom Cotton", "Handloom", "Kora Cotton", "Daily", "Beige", "Temple Stripe", 4890, 6500, 3],
   ["Gulaab Organza", "Designer", "Organza", "Party", "Rose Gold", "Sequin", 15900, 21000, 4],
@@ -78,7 +113,7 @@ const seeds: Array<
 
 const badges = ["New", "Bestseller", "Trending", "Limited", "New"] as const;
 
-export const products: Product[] = seeds.map((s, i) => {
+const seedProducts: Product[] = seeds.map((s, i) => {
   const [name, weave, fabric, occasion, color, pattern, price, mrp, img] = s;
   const imgs = [img, (img + 3) % 8, (img + 5) % 8, (img + 1) % 8].map((n) => gallery[n] as string);
   return {
@@ -103,6 +138,8 @@ export const products: Product[] = seeds.map((s, i) => {
     description: `${name} is a handpicked ${fabric.toLowerCase()} saree woven with a ${pattern.toLowerCase()} motif and finished with a traditional ${occasion.toLowerCase()} palette. Each piece is loomed by our master weavers and takes 18–24 days to complete.`,
   };
 });
+
+export const products: Product[] = [...showcaseProducts, ...seedProducts];
 
 export const byId = (id: string) => products.find((p) => p.id === id);
 

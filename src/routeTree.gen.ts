@@ -10,20 +10,25 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BanarasiRouteImport } from './routes/banarasi'
 import { Route as BestSellersRouteImport } from './routes/best-sellers'
 import { Route as BridalRouteImport } from './routes/bridal'
+import { Route as CancellationPolicyRouteImport } from './routes/cancellation-policy'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CollectionsRouteImport } from './routes/collections'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CottonSareesRouteImport } from './routes/cotton-sarees'
 import { Route as DailyWearRouteImport } from './routes/daily-wear'
 import { Route as DesignerRouteImport } from './routes/designer'
+import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as FestivalRouteImport } from './routes/festival'
+import { Route as GiftCardsRouteImport } from './routes/gift-cards'
 import { Route as HandloomRouteImport } from './routes/handloom'
 import { Route as KanjivaramRouteImport } from './routes/kanjivaram'
 import { Route as LinenRouteImport } from './routes/linen'
@@ -33,8 +38,12 @@ import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as PartyWearRouteImport } from './routes/party-wear'
 import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as SaleRouteImport } from './routes/sale'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as ShippingPolicyRouteImport } from './routes/shipping-policy'
 import { Route as SilkSareesRouteImport } from './routes/silk-sarees'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TrackOrderRouteImport } from './routes/track-order'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as WeddingRouteImport } from './routes/wedding'
@@ -44,7 +53,11 @@ import { Route as AccountAddressesRouteImport } from './routes/account/addresses
 import { Route as AccountNotificationsRouteImport } from './routes/account/notifications'
 import { Route as AccountOrdersRouteImport } from './routes/account/orders'
 import { Route as AccountPaymentsRouteImport } from './routes/account/payments'
+import { Route as AccountRefundsRouteImport } from './routes/account/refunds'
+import { Route as AccountReturnsRouteImport } from './routes/account/returns'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminCustomersRouteImport } from './routes/admin/customers'
+import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -54,6 +67,11 @@ import { Route as AdminProductsNewRouteImport } from './routes/admin/products.ne
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountRoute = AccountRouteImport.update({
@@ -86,6 +104,11 @@ const BridalRoute = BridalRouteImport.update({
   path: '/bridal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CancellationPolicyRoute = CancellationPolicyRouteImport.update({
+  id: '/cancellation-policy',
+  path: '/cancellation-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
@@ -106,6 +129,11 @@ const CollectionsRoute = CollectionsRouteImport.update({
   path: '/collections',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CottonSareesRoute = CottonSareesRouteImport.update({
   id: '/cotton-sarees',
   path: '/cotton-sarees',
@@ -121,9 +149,19 @@ const DesignerRoute = DesignerRouteImport.update({
   path: '/designer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqsRoute = FaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FestivalRoute = FestivalRouteImport.update({
   id: '/festival',
   path: '/festival',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiftCardsRoute = GiftCardsRouteImport.update({
+  id: '/gift-cards',
+  path: '/gift-cards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HandloomRoute = HandloomRouteImport.update({
@@ -171,14 +209,34 @@ const PaymentFailedRoute = PaymentFailedRouteImport.update({
   path: '/payment-failed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SaleRoute = SaleRouteImport.update({
   id: '/sale',
   path: '/sale',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShippingPolicyRoute = ShippingPolicyRouteImport.update({
+  id: '/shipping-policy',
+  path: '/shipping-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SilkSareesRoute = SilkSareesRouteImport.update({
   id: '/silk-sarees',
   path: '/silk-sarees',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrackOrderRoute = TrackOrderRouteImport.update({
@@ -226,9 +284,29 @@ const AccountPaymentsRoute = AccountPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AccountRoute,
 } as any)
+const AccountRefundsRoute = AccountRefundsRouteImport.update({
+  id: '/refunds',
+  path: '/refunds',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountReturnsRoute = AccountReturnsRouteImport.update({
+  id: '/returns',
+  path: '/returns',
+  getParentRoute: () => AccountRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCustomersRoute = AdminCustomersRouteImport.update({
+  id: '/customers',
+  path: '/customers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOrdersRoute = AdminOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
@@ -259,20 +337,25 @@ const AdminProductsNewRoute = AdminProductsNewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/account': typeof AccountRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
+  '/cancellation-policy': typeof CancellationPolicyRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRoute
   '/collections': typeof CollectionsRoute
+  '/contact': typeof ContactRoute
   '/cotton-sarees': typeof CottonSareesRoute
   '/daily-wear': typeof DailyWearRoute
   '/designer': typeof DesignerRoute
+  '/faqs': typeof FaqsRoute
   '/festival': typeof FestivalRoute
+  '/gift-cards': typeof GiftCardsRoute
   '/handloom': typeof HandloomRoute
   '/kanjivaram': typeof KanjivaramRoute
   '/linen': typeof LinenRoute
@@ -282,8 +365,12 @@ export interface FileRoutesByFullPath {
   '/party-wear': typeof PartyWearRoute
   '/payment': typeof PaymentRoute
   '/payment-failed': typeof PaymentFailedRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/sale': typeof SaleRoute
+  '/search': typeof SearchRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/silk-sarees': typeof SilkSareesRoute
+  '/terms': typeof TermsRoute
   '/track-order': typeof TrackOrderRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
@@ -292,6 +379,10 @@ export interface FileRoutesByFullPath {
   '/account/notifications': typeof AccountNotificationsRoute
   '/account/orders': typeof AccountOrdersRoute
   '/account/payments': typeof AccountPaymentsRoute
+  '/account/refunds': typeof AccountRefundsRoute
+  '/account/returns': typeof AccountReturnsRoute
+  '/admin/customers': typeof AdminCustomersRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
@@ -302,18 +393,23 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRouteWithChildren
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
+  '/cancellation-policy': typeof CancellationPolicyRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRoute
   '/collections': typeof CollectionsRoute
+  '/contact': typeof ContactRoute
   '/cotton-sarees': typeof CottonSareesRoute
   '/daily-wear': typeof DailyWearRoute
   '/designer': typeof DesignerRoute
+  '/faqs': typeof FaqsRoute
   '/festival': typeof FestivalRoute
+  '/gift-cards': typeof GiftCardsRoute
   '/handloom': typeof HandloomRoute
   '/kanjivaram': typeof KanjivaramRoute
   '/linen': typeof LinenRoute
@@ -323,8 +419,12 @@ export interface FileRoutesByTo {
   '/party-wear': typeof PartyWearRoute
   '/payment': typeof PaymentRoute
   '/payment-failed': typeof PaymentFailedRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/sale': typeof SaleRoute
+  '/search': typeof SearchRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/silk-sarees': typeof SilkSareesRoute
+  '/terms': typeof TermsRoute
   '/track-order': typeof TrackOrderRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
@@ -333,6 +433,10 @@ export interface FileRoutesByTo {
   '/account/notifications': typeof AccountNotificationsRoute
   '/account/orders': typeof AccountOrdersRoute
   '/account/payments': typeof AccountPaymentsRoute
+  '/account/refunds': typeof AccountRefundsRoute
+  '/account/returns': typeof AccountReturnsRoute
+  '/admin/customers': typeof AdminCustomersRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
@@ -344,20 +448,25 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/account': typeof AccountRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/banarasi': typeof BanarasiRoute
   '/best-sellers': typeof BestSellersRoute
   '/bridal': typeof BridalRoute
+  '/cancellation-policy': typeof CancellationPolicyRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRoute
   '/collections': typeof CollectionsRoute
+  '/contact': typeof ContactRoute
   '/cotton-sarees': typeof CottonSareesRoute
   '/daily-wear': typeof DailyWearRoute
   '/designer': typeof DesignerRoute
+  '/faqs': typeof FaqsRoute
   '/festival': typeof FestivalRoute
+  '/gift-cards': typeof GiftCardsRoute
   '/handloom': typeof HandloomRoute
   '/kanjivaram': typeof KanjivaramRoute
   '/linen': typeof LinenRoute
@@ -367,8 +476,12 @@ export interface FileRoutesById {
   '/party-wear': typeof PartyWearRoute
   '/payment': typeof PaymentRoute
   '/payment-failed': typeof PaymentFailedRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/sale': typeof SaleRoute
+  '/search': typeof SearchRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/silk-sarees': typeof SilkSareesRoute
+  '/terms': typeof TermsRoute
   '/track-order': typeof TrackOrderRoute
   '/trending': typeof TrendingRoute
   '/wedding': typeof WeddingRoute
@@ -377,6 +490,10 @@ export interface FileRoutesById {
   '/account/notifications': typeof AccountNotificationsRoute
   '/account/orders': typeof AccountOrdersRoute
   '/account/payments': typeof AccountPaymentsRoute
+  '/account/refunds': typeof AccountRefundsRoute
+  '/account/returns': typeof AccountReturnsRoute
+  '/admin/customers': typeof AdminCustomersRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$id': typeof ProductIdRoute
@@ -389,20 +506,25 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/account'
     | '/admin'
     | '/auth'
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
+    | '/cancellation-policy'
     | '/cart'
     | '/categories'
     | '/checkout'
     | '/collections'
+    | '/contact'
     | '/cotton-sarees'
     | '/daily-wear'
     | '/designer'
+    | '/faqs'
     | '/festival'
+    | '/gift-cards'
     | '/handloom'
     | '/kanjivaram'
     | '/linen'
@@ -412,8 +534,12 @@ export interface FileRouteTypes {
     | '/party-wear'
     | '/payment'
     | '/payment-failed'
+    | '/privacy-policy'
     | '/sale'
+    | '/search'
+    | '/shipping-policy'
     | '/silk-sarees'
+    | '/terms'
     | '/track-order'
     | '/trending'
     | '/wedding'
@@ -422,6 +548,10 @@ export interface FileRouteTypes {
     | '/account/notifications'
     | '/account/orders'
     | '/account/payments'
+    | '/account/refunds'
+    | '/account/returns'
+    | '/admin/customers'
+    | '/admin/orders'
     | '/admin/settings'
     | '/auth/callback'
     | '/product/$id'
@@ -432,18 +562,23 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/auth'
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
+    | '/cancellation-policy'
     | '/cart'
     | '/categories'
     | '/checkout'
     | '/collections'
+    | '/contact'
     | '/cotton-sarees'
     | '/daily-wear'
     | '/designer'
+    | '/faqs'
     | '/festival'
+    | '/gift-cards'
     | '/handloom'
     | '/kanjivaram'
     | '/linen'
@@ -453,8 +588,12 @@ export interface FileRouteTypes {
     | '/party-wear'
     | '/payment'
     | '/payment-failed'
+    | '/privacy-policy'
     | '/sale'
+    | '/search'
+    | '/shipping-policy'
     | '/silk-sarees'
+    | '/terms'
     | '/track-order'
     | '/trending'
     | '/wedding'
@@ -463,6 +602,10 @@ export interface FileRouteTypes {
     | '/account/notifications'
     | '/account/orders'
     | '/account/payments'
+    | '/account/refunds'
+    | '/account/returns'
+    | '/admin/customers'
+    | '/admin/orders'
     | '/admin/settings'
     | '/auth/callback'
     | '/product/$id'
@@ -473,20 +616,25 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/account'
     | '/admin'
     | '/auth'
     | '/banarasi'
     | '/best-sellers'
     | '/bridal'
+    | '/cancellation-policy'
     | '/cart'
     | '/categories'
     | '/checkout'
     | '/collections'
+    | '/contact'
     | '/cotton-sarees'
     | '/daily-wear'
     | '/designer'
+    | '/faqs'
     | '/festival'
+    | '/gift-cards'
     | '/handloom'
     | '/kanjivaram'
     | '/linen'
@@ -496,8 +644,12 @@ export interface FileRouteTypes {
     | '/party-wear'
     | '/payment'
     | '/payment-failed'
+    | '/privacy-policy'
     | '/sale'
+    | '/search'
+    | '/shipping-policy'
     | '/silk-sarees'
+    | '/terms'
     | '/track-order'
     | '/trending'
     | '/wedding'
@@ -506,6 +658,10 @@ export interface FileRouteTypes {
     | '/account/notifications'
     | '/account/orders'
     | '/account/payments'
+    | '/account/refunds'
+    | '/account/returns'
+    | '/admin/customers'
+    | '/admin/orders'
     | '/admin/settings'
     | '/auth/callback'
     | '/product/$id'
@@ -517,20 +673,25 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
   BanarasiRoute: typeof BanarasiRoute
   BestSellersRoute: typeof BestSellersRoute
   BridalRoute: typeof BridalRoute
+  CancellationPolicyRoute: typeof CancellationPolicyRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
   CheckoutRoute: typeof CheckoutRoute
   CollectionsRoute: typeof CollectionsRoute
+  ContactRoute: typeof ContactRoute
   CottonSareesRoute: typeof CottonSareesRoute
   DailyWearRoute: typeof DailyWearRoute
   DesignerRoute: typeof DesignerRoute
+  FaqsRoute: typeof FaqsRoute
   FestivalRoute: typeof FestivalRoute
+  GiftCardsRoute: typeof GiftCardsRoute
   HandloomRoute: typeof HandloomRoute
   KanjivaramRoute: typeof KanjivaramRoute
   LinenRoute: typeof LinenRoute
@@ -540,8 +701,12 @@ export interface RootRouteChildren {
   PartyWearRoute: typeof PartyWearRoute
   PaymentRoute: typeof PaymentRoute
   PaymentFailedRoute: typeof PaymentFailedRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   SaleRoute: typeof SaleRoute
+  SearchRoute: typeof SearchRoute
+  ShippingPolicyRoute: typeof ShippingPolicyRoute
   SilkSareesRoute: typeof SilkSareesRoute
+  TermsRoute: typeof TermsRoute
   TrackOrderRoute: typeof TrackOrderRoute
   TrendingRoute: typeof TrendingRoute
   WeddingRoute: typeof WeddingRoute
@@ -556,6 +721,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account': {
@@ -600,6 +772,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BridalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cancellation-policy': {
+      id: '/cancellation-policy'
+      path: '/cancellation-policy'
+      fullPath: '/cancellation-policy'
+      preLoaderRoute: typeof CancellationPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cart': {
       id: '/cart'
       path: '/cart'
@@ -628,6 +807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CollectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cotton-sarees': {
       id: '/cotton-sarees'
       path: '/cotton-sarees'
@@ -649,11 +835,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faqs': {
+      id: '/faqs'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof FaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/festival': {
       id: '/festival'
       path: '/festival'
       fullPath: '/festival'
       preLoaderRoute: typeof FestivalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gift-cards': {
+      id: '/gift-cards'
+      path: '/gift-cards'
+      fullPath: '/gift-cards'
+      preLoaderRoute: typeof GiftCardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/handloom': {
@@ -719,6 +919,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentFailedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sale': {
       id: '/sale'
       path: '/sale'
@@ -726,11 +933,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SaleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipping-policy': {
+      id: '/shipping-policy'
+      path: '/shipping-policy'
+      fullPath: '/shipping-policy'
+      preLoaderRoute: typeof ShippingPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/silk-sarees': {
       id: '/silk-sarees'
       path: '/silk-sarees'
       fullPath: '/silk-sarees'
       preLoaderRoute: typeof SilkSareesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/track-order': {
@@ -796,11 +1024,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountPaymentsRouteImport
       parentRoute: typeof AccountRoute
     }
+    '/account/refunds': {
+      id: '/account/refunds'
+      path: '/refunds'
+      fullPath: '/account/refunds'
+      preLoaderRoute: typeof AccountRefundsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/returns': {
+      id: '/account/returns'
+      path: '/returns'
+      fullPath: '/account/returns'
+      preLoaderRoute: typeof AccountReturnsRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/customers': {
+      id: '/admin/customers'
+      path: '/customers'
+      fullPath: '/admin/customers'
+      preLoaderRoute: typeof AdminCustomersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/settings': {
@@ -846,6 +1102,8 @@ interface AccountRouteChildren {
   AccountNotificationsRoute: typeof AccountNotificationsRoute
   AccountOrdersRoute: typeof AccountOrdersRoute
   AccountPaymentsRoute: typeof AccountPaymentsRoute
+  AccountRefundsRoute: typeof AccountRefundsRoute
+  AccountReturnsRoute: typeof AccountReturnsRoute
   AccountIndexRoute: typeof AccountIndexRoute
 }
 
@@ -854,6 +1112,8 @@ const AccountRouteChildren: AccountRouteChildren = {
   AccountNotificationsRoute: AccountNotificationsRoute,
   AccountOrdersRoute: AccountOrdersRoute,
   AccountPaymentsRoute: AccountPaymentsRoute,
+  AccountRefundsRoute: AccountRefundsRoute,
+  AccountReturnsRoute: AccountReturnsRoute,
   AccountIndexRoute: AccountIndexRoute,
 }
 
@@ -861,6 +1121,8 @@ const AccountRouteWithChildren =
   AccountRoute._addFileChildren(AccountRouteChildren)
 
 interface AdminRouteChildren {
+  AdminCustomersRoute: typeof AdminCustomersRoute
+  AdminOrdersRoute: typeof AdminOrdersRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminProductsNewRoute: typeof AdminProductsNewRoute
@@ -868,6 +1130,8 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCustomersRoute: AdminCustomersRoute,
+  AdminOrdersRoute: AdminOrdersRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminProductsNewRoute: AdminProductsNewRoute,
@@ -888,20 +1152,25 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AccountRoute: AccountRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
   BanarasiRoute: BanarasiRoute,
   BestSellersRoute: BestSellersRoute,
   BridalRoute: BridalRoute,
+  CancellationPolicyRoute: CancellationPolicyRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
   CheckoutRoute: CheckoutRoute,
   CollectionsRoute: CollectionsRoute,
+  ContactRoute: ContactRoute,
   CottonSareesRoute: CottonSareesRoute,
   DailyWearRoute: DailyWearRoute,
   DesignerRoute: DesignerRoute,
+  FaqsRoute: FaqsRoute,
   FestivalRoute: FestivalRoute,
+  GiftCardsRoute: GiftCardsRoute,
   HandloomRoute: HandloomRoute,
   KanjivaramRoute: KanjivaramRoute,
   LinenRoute: LinenRoute,
@@ -911,8 +1180,12 @@ const rootRouteChildren: RootRouteChildren = {
   PartyWearRoute: PartyWearRoute,
   PaymentRoute: PaymentRoute,
   PaymentFailedRoute: PaymentFailedRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   SaleRoute: SaleRoute,
+  SearchRoute: SearchRoute,
+  ShippingPolicyRoute: ShippingPolicyRoute,
   SilkSareesRoute: SilkSareesRoute,
+  TermsRoute: TermsRoute,
   TrackOrderRoute: TrackOrderRoute,
   TrendingRoute: TrendingRoute,
   WeddingRoute: WeddingRoute,

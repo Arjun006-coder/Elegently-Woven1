@@ -49,13 +49,13 @@ function Categories() {
                   <Link
                     key={slug}
                     to={`/${slug}`}
-                    className="group relative overflow-hidden rounded-2xl hover-lift"
+                    className="group relative overflow-hidden rounded-2xl shadow-soft transition-all duration-300 hover:scale-[1.03] hover:shadow-lift"
                   >
                     <img
                       src={c.image}
                       alt={c.title}
                       loading="lazy"
-                      className="h-56 w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="h-56 w-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent" />
                     <div className="absolute inset-x-5 bottom-5 text-background">

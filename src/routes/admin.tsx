@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
 import { requireAdmin } from "../lib/auth";
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, Store } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async () => {
@@ -15,11 +15,21 @@ function AdminLayout() {
       {/* Admin Sidebar */}
       <aside className="w-64 bg-card border-r border-border hidden md:flex flex-col">
         <div className="p-6">
-          <h2 className="text-xl font-serif font-bold text-primary tracking-wide">
-            ElegantlyWoven Admin
-          </h2>
+          <Link to="/" className="group block">
+            <h2 className="text-xl font-serif font-bold text-primary tracking-wide group-hover:opacity-80 transition-opacity">
+              ElegantlyWoven
+            </h2>
+            <span className="text-xs text-muted-foreground">Admin Portal</span>
+          </Link>
         </div>
         <nav className="flex-1 px-4 space-y-2">
+          <Link
+            to="/"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary mb-4 border-b border-border/50 pb-3"
+          >
+            <Store size={18} />
+            Back to Storefront
+          </Link>
           <Link
             to="/admin"
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/10 hover:text-primary"

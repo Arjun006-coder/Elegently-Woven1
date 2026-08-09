@@ -54,11 +54,16 @@ export async function getLiveProducts(limit = 10, categorySlug?: string) {
 }
 
 export async function getLiveProductBySlug(idOrSlug: string) {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`)
-    .maybeSingle();
+  const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(idOrSlug);
+  
+  let query = supabase.from("products").select("*");
+  if (isUuid) {
+    query = query.or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`);
+  } else {
+    query = query.eq("slug", idOrSlug);
+  }
+
+  const { data, error } = await query.maybeSingle();
 
   if (error || !data) return null;
 

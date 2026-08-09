@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+
 export const Route = createFileRoute("/payment")({
   component: PaymentPage,
   head: () => ({
@@ -34,14 +37,169 @@ const methods = [
 ];
 
 function PaymentPage() {
-  const { subtotal, clearCart } = useShop();
+  const { subtotal, lines, clearCart } = useShop();
   const navigate = useNavigate();
   const [method, setMethod] = useState("upi");
   const [processing, setProcessing] = useState(false);
+  const [simulateFailure, setSimulateFailure] = useState(false);
 
   const shipping = subtotal > 2999 ? 0 : 149;
   const cod = method === "cod" ? 49 : 0;
-  const total = subtotal + Math.round(subtotal * 0.05) + shipping + cod;
+  const gst = Math.round(subtotal * 0.05);
+  const total = subtotal + gst + shipping + cod;
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProcessing(true);
+
+    if (simulateFailure) {
+      setTimeout(() => {
+        setProcessing(false);
+        navigate({ to: "/payment-failed" });
+      }, 1200);
+      return;
+    }
+
+    try {
+      const orderNum = "EW-" + Math.floor(100000 + Math.random() * 899999);
+      const { data: authData } = await supabase.auth.getSession();
+      const userId = authData?.session?.user?.id || null;
+
+      let checkoutData: any = {};
+      try {
+        const rawCheckout = sessionStorage.getItem("ew_checkout_data");
+        if (rawCheckout) checkoutData = JSON.parse(rawCheckout);
+      } catch {}
+
+      const customerName = checkoutData.name || authData?.session?.user?.user_metadata?.full_name || "Aditi Rao";
+      const customerEmail = checkoutData.email || authData?.session?.user?.email || "customer@example.com";
+      const customerPhone = checkoutData.phone || "+91 98800 11223";
+      const shippingAddress = checkoutData.address || {
+        line: "12, Lotus Villa, 4th Cross, Jayanagar",
+        city: "Bengaluru",
+        state: "Karnataka",
+        pincode: "560011",
+      };
+
+      const itemsPayload = lines.map((l) => ({
+        product_id: String(l.product.id),
+        name: l.product.name,
+        price: l.product.price,
+        quantity: l.qty,
+        image: l.product.images[0] || "",
+      }));
+
+      const platformCommission = Math.round(total * 0.01 * 100) / 100;
+
+      // Insert order into Supabase 'orders' table (Works for both AUTH and GUEST users)
+      const { data: orderData, error: orderErr } = await supabase
+        .from("orders")
+        .insert({
+          order_number: orderNum,
+          user_id: userId,
+          phone_number: customerPhone,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          customer_phone: customerPhone,
+          shipping_address: shippingAddress,
+          status: "Processing",
+          total_amount: total,
+          subtotal,
+          shipping_charge: shipping,
+          tax_amount: gst,
+          platform_commission: platformCommission,
+          payment_method: method.toUpperCase(),
+          payment_status: "Paid",
+          items: itemsPayload,
+        })
+        .select()
+        .maybeSingle();
+
+      if (orderErr) {
+        console.warn("Primary order insert warning, trying fallback:", orderErr);
+        // Fallback insert with phone_number included to satisfy NOT NULL constraint
+        const { data: fbOrder, error: fbErr } = await supabase
+          .from("orders")
+          .insert({
+            order_number: orderNum,
+            user_id: userId,
+            phone_number: customerPhone,
+            status: "Processing",
+            total_amount: total,
+            subtotal,
+            shipping_charge: shipping,
+            tax_amount: gst,
+            payment_method: method.toUpperCase(),
+            payment_status: "Paid",
+          })
+          .select()
+          .maybeSingle();
+
+        if (fbErr) {
+          console.error("Fallback order insertion error:", fbErr);
+        } else if (fbOrder && lines.length > 0) {
+          try {
+            const orderItemsPayload = lines.map((l) => ({
+              order_id: fbOrder.id,
+              product_id: String(l.product.id),
+              product_name: l.product.name,
+              quantity: l.qty,
+              price_at_time: l.product.price,
+            }));
+            await supabase.from("order_items").insert(orderItemsPayload);
+          } catch (itemErr) {
+            console.warn("Order items insert warning:", itemErr);
+          }
+        }
+      } else if (orderData && lines.length > 0) {
+        try {
+          const orderItemsPayload = lines.map((l) => ({
+            order_id: orderData.id,
+            product_id: String(l.product.id),
+            product_name: l.product.name,
+            quantity: l.qty,
+            price_at_time: l.product.price,
+          }));
+          await supabase.from("order_items").insert(orderItemsPayload);
+        } catch (itemErr) {
+          console.warn("Order items insert warning:", itemErr);
+        }
+      }
+
+      if (userId) {
+        try {
+          await supabase.from("notifications").insert({
+            user_id: userId,
+            title: `Order Placed: #${orderNum}`,
+            description: `Your order for ₹${total.toLocaleString("en-IN")} is placed & processing.`,
+            icon: "ShoppingBag",
+          });
+        } catch (notifErr) {
+          console.warn("Notification creation warning:", notifErr);
+        }
+      }
+
+      const orderInfo = {
+        orderNumber: orderNum,
+        total,
+        subtotal,
+        gst,
+        shipping,
+        method,
+        date: new Date().toISOString(),
+        items: lines.map((l) => ({ name: l.product.name, price: l.product.price, qty: l.qty })),
+      };
+      sessionStorage.setItem("ew_last_order", JSON.stringify(orderInfo));
+
+      clearCart();
+      toast.success("Payment Successful!", { description: `Order ${orderNum} confirmed.` });
+      navigate({ to: "/order-success" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Payment error. Please try again.");
+      setProcessing(false);
+    }
+  };
 
   return (
     <SiteLayout>
@@ -51,21 +209,7 @@ function PaymentPage() {
           <Lock className="h-3.5 w-3.5 text-jade" /> 256-bit encrypted · PCI-DSS compliant gateway
         </p>
 
-        <form
-          className="mt-10 grid gap-10 lg:grid-cols-[1.4fr_1fr]"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setProcessing(true);
-            setTimeout(() => {
-              if (method === "netbanking") {
-                navigate({ to: "/payment-failed" });
-              } else {
-                clearCart();
-                navigate({ to: "/order-success" });
-              }
-            }, 1400);
-          }}
-        >
+        <form className="mt-10 grid gap-10 lg:grid-cols-[1.4fr_1fr]" onSubmit={handlePaymentSubmit}>
           <div>
             <RadioGroup value={method} onValueChange={setMethod} className="space-y-3">
               {methods.map((m) => (

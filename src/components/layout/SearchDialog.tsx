@@ -54,8 +54,27 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
           <button
             type="button"
             aria-label="Voice search"
-            onClick={() => toast("Listening…", { description: "Voice search preview" })}
-            className="grid h-8 w-8 place-items-center rounded-full bg-secondary"
+            onClick={() => {
+              const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+              if (SpeechRecognition) {
+                try {
+                  const recognition = new SpeechRecognition();
+                  recognition.lang = "en-IN";
+                  toast.info("Listening… Speak now", { description: "Say e.g. 'Banarasi Silk'" });
+                  recognition.onresult = (event: any) => {
+                    const transcript = event.results[0][0].transcript;
+                    setQ(transcript);
+                    toast.success(`Heard: "${transcript}"`);
+                  };
+                  recognition.start();
+                } catch {
+                  toast.info("Listening…", { description: "Voice search preview" });
+                }
+              } else {
+                toast.info("Listening…", { description: "Voice search preview" });
+              }
+            }}
+            className="grid h-8 w-8 place-items-center rounded-full bg-secondary hover:bg-accent transition-colors"
           >
             <Mic className="h-3.5 w-3.5" />
           </button>

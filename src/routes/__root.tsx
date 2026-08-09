@@ -12,8 +12,11 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportError } from "../lib/error-reporting";
 import { ShopProvider } from "../lib/store";
+import { LanguageProvider } from "../lib/i18n";
 import { Toaster } from "../components/ui/sonner";
 import { LoadingScreen } from "../components/layout/LoadingScreen";
+import { SmoothCursor } from "../components/ui/smooth-cursor";
+import { SmoothScroll } from "../components/layout/SmoothScroll";
 
 function NotFoundComponent() {
   return (
@@ -164,10 +167,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ShopProvider>
-        <LoadingScreen />
-        {/* Nested routes render here */}
-        <Outlet />
-        <Toaster position="top-center" />
+        <LanguageProvider>
+          <SmoothScroll>
+            <SmoothCursor />
+            <LoadingScreen />
+            {/* Nested routes render here */}
+            <Outlet />
+            <Toaster position="top-center" />
+          </SmoothScroll>
+        </LanguageProvider>
       </ShopProvider>
     </QueryClientProvider>
   );

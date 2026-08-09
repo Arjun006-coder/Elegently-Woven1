@@ -44,9 +44,32 @@ function Checkout() {
   const [adding, setAdding] = useState(false);
   const [gifting, setGifting] = useState(false);
 
+  const [guestName, setGuestName] = useState("Aditi Rao");
+  const [guestEmail, setGuestEmail] = useState("aditi.rao@email.com");
+  const [guestPhone, setGuestPhone] = useState("+91 98800 11223");
+
   const shipping = subtotal > 2999 ? 0 : 149;
   const gst = Math.round(subtotal * 0.05);
   const total = subtotal + gst + shipping;
+
+  const handleCheckoutSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const selectedAddressObj = savedAddresses.find((a) => a.id === address) || savedAddresses[0];
+    const checkoutPayload = {
+      name: guest ? guestName : selectedAddressObj?.name || "Aditi Rao",
+      email: guest ? guestEmail : "aditi.rao@email.com",
+      phone: guest ? guestPhone : selectedAddressObj?.phone || "+91 98800 11223",
+      address: {
+        line: selectedAddressObj?.line || "12, Lotus Villa, Jayanagar",
+        city: "Bengaluru",
+        state: "Karnataka",
+        pincode: "560011",
+      },
+      slot,
+    };
+    sessionStorage.setItem("ew_checkout_data", JSON.stringify(checkoutPayload));
+    navigate({ to: "/payment" });
+  };
 
   return (
     <SiteLayout>
@@ -64,13 +87,7 @@ function Checkout() {
           ))}
         </ol>
 
-        <form
-          className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]"
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({ to: "/payment" });
-          }}
-        >
+        <form className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]" onSubmit={handleCheckoutSubmit}>
           <div className="space-y-8">
             <section className="rounded-2xl border border-border/70 p-6">
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
@@ -83,15 +100,15 @@ function Checkout() {
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="gname">Full name *</Label>
-                    <Input id="gname" required className="mt-2" />
+                    <Input id="gname" required value={guestName} onChange={(e) => setGuestName(e.target.value)} className="mt-2" />
                   </div>
                   <div>
                     <Label htmlFor="gmail">Email *</Label>
-                    <Input id="gmail" type="email" required className="mt-2" />
+                    <Input id="gmail" type="email" required value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className="mt-2" />
                   </div>
                   <div className="sm:col-span-2">
                     <Label htmlFor="gphone">Phone number *</Label>
-                    <Input id="gphone" type="tel" required placeholder="Required for delivery updates" className="mt-2" />
+                    <Input id="gphone" type="tel" required value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} placeholder="Required for delivery updates" className="mt-2" />
                   </div>
                 </div>
               ) : (

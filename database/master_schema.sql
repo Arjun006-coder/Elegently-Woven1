@@ -1,5 +1,5 @@
 -- =============================================================================
--- ELEGANTLYWOVEN — MASTER SUPABASE SETUP SCRIPT (WITH RLS ENABLED)
+-- ELEGANTLYWOVEN — MASTER SUPABASE CONSOLIDATED SCHEMA (OPTIMIZED)
 -- Company: LumaScale | Product: ElegantlyWoven
 -- =============================================================================
 -- HOW TO USE:
@@ -15,7 +15,7 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 
 -- -----------------------------------------------------------------------------
--- 1. PRODUCTS TABLE & COLUMNS (RLS ENABLED)
+-- 1. PRODUCTS TABLE & COLUMNS
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.products (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.products (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Ensure all columns exist on products
+-- Safe alter statements to migrate any missing product columns
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS stock INT DEFAULT 10;
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category VARCHAR(100);
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS color VARCHAR(50);
@@ -70,26 +70,8 @@ ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_new BOOLEAN DEFAULT TRUE
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE;
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_bestseller BOOLEAN DEFAULT FALSE;
 
--- Drop constraints if applied from earlier strict schema
-DO $$ 
-BEGIN 
-  ALTER TABLE public.products ALTER COLUMN category_id DROP NOT NULL;
-EXCEPTION WHEN OTHERS THEN NULL; END $$;
-
-DO $$ 
-BEGIN 
-  ALTER TABLE public.products ALTER COLUMN sku DROP NOT NULL;
-EXCEPTION WHEN OTHERS THEN NULL; END $$;
-
-DO $$ 
-BEGIN 
-  ALTER TABLE public.products ALTER COLUMN mrp DROP NOT NULL;
-EXCEPTION WHEN OTHERS THEN NULL; END $$;
-
--- Enable RLS on products
+-- RLS policies for products
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-
--- Products RLS Policies
 DROP POLICY IF EXISTS "Public products read access" ON public.products;
 DROP POLICY IF EXISTS "Anyone can insert products" ON public.products;
 DROP POLICY IF EXISTS "Anyone can update products" ON public.products;
@@ -101,7 +83,7 @@ CREATE POLICY "Anyone can update products" ON public.products FOR UPDATE USING (
 CREATE POLICY "Anyone can delete products" ON public.products FOR DELETE USING (true);
 
 -- -----------------------------------------------------------------------------
--- 2. USER ADDRESSES TABLE & RLS ENABLED
+-- 2. USER ADDRESSES TABLE
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.user_addresses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -119,7 +101,7 @@ CREATE TABLE IF NOT EXISTS public.user_addresses (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Ensure user_addresses column names align
+-- Ensure user_addresses has recipient_name and address_line_1 even if created by old schema
 DO $$ 
 BEGIN 
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_addresses' AND column_name = 'full_name') THEN
@@ -146,7 +128,7 @@ CREATE POLICY "Users can update their own addresses." ON public.user_addresses F
 CREATE POLICY "Users can delete their own addresses." ON public.user_addresses FOR DELETE USING (auth.uid() = user_id);
 
 -- -----------------------------------------------------------------------------
--- 3. WISHLISTS TABLE & RLS ENABLED
+-- 3. WISHLISTS TABLE
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.wishlists (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -156,15 +138,15 @@ CREATE TABLE IF NOT EXISTS public.wishlists (
     UNIQUE(user_id, product_id)
 );
 
+-- Fix wishlists column if created from old 2-table schema
 ALTER TABLE public.wishlists ADD COLUMN IF NOT EXISTS product_id UUID REFERENCES public.products(id) ON DELETE CASCADE;
 
 ALTER TABLE public.wishlists ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "Users can manage their wishlist" ON public.wishlists;
 CREATE POLICY "Users can manage their wishlist" ON public.wishlists FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- -----------------------------------------------------------------------------
--- 4. CART ITEMS TABLE & RLS ENABLED
+-- 4. CART ITEMS TABLE
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.cart_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -181,12 +163,11 @@ ALTER TABLE public.cart_items ADD COLUMN IF NOT EXISTS product_id UUID REFERENCE
 ALTER TABLE public.cart_items ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1;
 
 ALTER TABLE public.cart_items ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "Users can manage their cart" ON public.cart_items;
 CREATE POLICY "Users can manage their cart" ON public.cart_items FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- -----------------------------------------------------------------------------
--- 5. NOTIFICATIONS TABLE & RLS ENABLED
+-- 5. NOTIFICATIONS TABLE
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.notifications (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -209,7 +190,7 @@ CREATE POLICY "Users can update their notifications" ON public.notifications FOR
 CREATE POLICY "System can insert notifications" ON public.notifications FOR INSERT WITH CHECK (true);
 
 -- -----------------------------------------------------------------------------
--- 6. ORDERS & ORDER ITEMS TABLE & RLS ENABLED
+-- 6. ORDERS & ORDER ITEMS TABLE
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.orders (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -230,18 +211,12 @@ CREATE TABLE IF NOT EXISTS public.orders (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_name TEXT;
-ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_email TEXT;
-ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_phone TEXT;
-ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS subtotal DECIMAL(12, 2) DEFAULT 0;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS shipping_charge DECIMAL(12, 2) DEFAULT 0;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS tax_amount DECIMAL(12, 2) DEFAULT 0;
-ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS platform_commission DECIMAL(12, 2) DEFAULT 0;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS shipping_address JSONB;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50) DEFAULT 'UPI';
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50) DEFAULT 'Paid';
-ALTER TABLE public.orders ALTER COLUMN user_id DROP NOT NULL;
 
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
@@ -249,13 +224,11 @@ DROP POLICY IF EXISTS "Users can view their orders" ON public.orders;
 DROP POLICY IF EXISTS "Users can insert their orders" ON public.orders;
 DROP POLICY IF EXISTS "Admins can view all orders" ON public.orders;
 DROP POLICY IF EXISTS "Admins can update orders" ON public.orders;
-DROP POLICY IF EXISTS "Allow public/anon order insert" ON public.orders;
-DROP POLICY IF EXISTS "Allow public/anon order select" ON public.orders;
-DROP POLICY IF EXISTS "Allow public/anon order update" ON public.orders;
 
-CREATE POLICY "Allow public/anon order insert" ON public.orders FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public/anon order select" ON public.orders FOR SELECT USING (true);
-CREATE POLICY "Allow public/anon order update" ON public.orders FOR UPDATE USING (true);
+CREATE POLICY "Users can view their orders" ON public.orders FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their orders" ON public.orders FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admins can view all orders" ON public.orders FOR SELECT USING (true);
+CREATE POLICY "Admins can update orders" ON public.orders FOR UPDATE USING (true);
 
 CREATE TABLE IF NOT EXISTS public.order_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -281,7 +254,7 @@ CREATE POLICY "Users can insert their order items" ON public.order_items FOR INS
 CREATE POLICY "Admins can view all order items" ON public.order_items FOR SELECT USING (true);
 
 -- -----------------------------------------------------------------------------
--- 7. PROFILES & AUTH TRIGGER & RLS ENABLED
+-- 7. PROFILES & AUTH TRIGGER
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -315,12 +288,10 @@ BEGIN
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+    NEW.raw_user_meta_data->>'full_name',
     'customer'
   )
   ON CONFLICT (id) DO NOTHING;
-  RETURN NEW;
-EXCEPTION WHEN OTHERS THEN
   RETURN NEW;
 END;
 $$;

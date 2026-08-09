@@ -16,7 +16,7 @@ import {
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { SectionHeading, Eyebrow, Stars } from "@/components/shop/Bits";
-import { BRAND, collections, designers, gallery, images, products, stores, testimonials } from "@/lib/data";
+import { BRAND, collections, designers, gallery, images, products, showcaseProducts, inr, stores, testimonials } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getLiveProducts } from "@/lib/api/products";
@@ -252,14 +252,14 @@ function Home() {
         />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((c) => (
-            <Link key={c.slug} to={`/${c.slug}`} className="group relative overflow-hidden rounded-3xl hover-lift">
+            <Link key={c.slug} to={`/${c.slug}`} className="group relative overflow-hidden rounded-3xl shadow-soft transition-all duration-300 hover:scale-[1.03] hover:shadow-lift">
               <img
                 src={c.image}
                 alt={c.title}
                 loading="lazy"
-                className="h-80 w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="h-80 w-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/10 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
               <div className="absolute inset-x-5 bottom-5 text-background">
                 <p className="text-[10px] tracking-[0.28em] uppercase opacity-80">{c.eyebrow}</p>
                 <p className="mt-2 font-serif text-2xl">{c.title}</p>
@@ -276,12 +276,79 @@ function Home() {
             <Link
               key={c.slug}
               to={`/${c.slug}`}
-              className="group flex flex-col items-center rounded-2xl border border-border/70 bg-card p-5 text-center transition-colors hover:border-gold"
+              className="group flex flex-col items-center rounded-2xl border border-border/70 bg-card p-5 text-center transition-all duration-300 hover:scale-105 hover:shadow-soft hover:border-gold"
             >
-              <img src={c.image} alt="" loading="lazy" className="h-24 w-24 rounded-full object-cover" />
-              <p className="mt-4 text-sm">{c.title}</p>
+              <img src={c.image} alt="" loading="lazy" className="h-24 w-24 rounded-full object-cover transition-transform duration-300 group-hover:scale-110" />
+              <p className="mt-4 text-sm font-medium">{c.title}</p>
               <p className="mt-1 text-[11px] text-muted-foreground">{c.eyebrow}</p>
             </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 border-t border-border/60">
+        <SectionHeading
+          eyebrow="Curated Showcase"
+          title="Masterpiece Heirloom Sarees"
+          description="Hand-selected six-yard wonders direct from master looms with GI Tags and Silk Mark certification."
+          action={{ label: "View showcase", to: "/collections" }}
+        />
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {showcaseProducts.slice(0, 6).map((product) => (
+            <motion.article
+              key={product.id}
+              whileHover={{ y: -6, scale: 1.02 }}
+              transition={{ duration: 0.35 }}
+              className="group relative flex flex-col rounded-3xl border border-border/70 bg-card overflow-hidden shadow-soft transition-all duration-300 hover:shadow-lift hover:border-gold/50"
+            >
+              <div className="relative aspect-4/5 w-full overflow-hidden bg-secondary">
+                <img
+                  src={product.images[0]}
+                  alt={product.name}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                  <span className="rounded-full bg-gold/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-black backdrop-blur">
+                    {product.weave}
+                  </span>
+                  {product.origin && (
+                    <span className="rounded-full bg-black/70 px-2.5 py-0.5 text-[9px] text-white backdrop-blur">
+                      📍 {product.origin}
+                    </span>
+                  )}
+                </div>
+                {product.badge && (
+                  <span className="absolute top-3 right-3 rounded-full bg-primary px-2.5 py-1 text-[10px] uppercase text-primary-foreground font-medium">
+                    {product.badge}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-1 flex-col p-6">
+                <p className="eyebrow text-gold">{product.fabric}</p>
+                <h3 className="mt-1 font-serif text-xl leading-snug line-clamp-1">
+                  <Link to="/product/$id" params={{ id: product.id }} className="hover:text-primary transition-colors">
+                    {product.name}
+                  </Link>
+                </h3>
+                <p className="mt-2 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                  {product.description}
+                </p>
+
+                <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between mt-auto">
+                  <div>
+                    <span className="font-serif text-lg font-semibold text-foreground">{inr(product.price)}</span>
+                    <span className="ml-2 text-xs text-muted-foreground line-through">{inr(product.mrp)}</span>
+                  </div>
+                  <Button asChild size="sm" variant="outline" className="rounded-full text-xs">
+                    <Link to="/product/$id" params={{ id: product.id }}>
+                      View Saree
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </motion.article>
           ))}
         </div>
       </section>

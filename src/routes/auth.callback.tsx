@@ -13,46 +13,74 @@ function AuthCallback() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Supabase handles the OAuth hash automatically via the client.
-    // We just wait for the session to be established and then redirect.
     const processCallback = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error("Auth callback error:", error);
-        setError(error.message);
-        return;
-      }
+      try {
+        // PKCE flow: exchange the ?code= query param for a real session
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get("code");
 
-      if (data.session) {
-        // Send welcome email if user has email
-        const user = data.session.user;
-        if (user.email) {
-          sendOrderEmail({
-            type: "welcome",
-            to: user.email,
-            customerName: user.user_metadata?.full_name || user.user_metadata?.name || user.email.split("@")[0] || "Valued Customer",
-          });
+        if (code) {
+          // PKCE: exchange code for session (secure — token never in URL)
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) {
+            console.error("Code exchange error:", exchangeError);
+            setError(exchangeError.message);
+            return;
+          }
+          if (data.session) {
+            await handleSuccessfulLogin(data.session.user);
+            return;
+          }
         }
-        // Successful login!
-        navigate({ to: "/account", replace: true });
-      } else {
-        // Give it a brief moment if the hash is still processing
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+
+        // Fallback: check if session already exists (implicit flow or re-visit)
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          setError(sessionError.message);
+          return;
+        }
+
+        if (sessionData.session) {
+          await handleSuccessfulLogin(sessionData.session.user);
+          return;
+        }
+
+        // Last resort: listen for auth state change
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (session) {
             subscription.unsubscribe();
-            navigate({ to: "/account", replace: true });
+            await handleSuccessfulLogin(session.user);
           }
         });
-        
-        // Timeout after 5 seconds if no session is created
+
+        // Timeout after 8 seconds
         setTimeout(() => {
-          if (!data.session) {
-            subscription.unsubscribe();
-            setError("Authentication failed or timed out. Please try again.");
-          }
-        }, 5000);
+          subscription.unsubscribe();
+          setError("Authentication timed out. Please try signing in again.");
+        }, 8000);
+
+      } catch (err: any) {
+        console.error("Auth callback exception:", err);
+        setError(err.message || "An unexpected error occurred during sign-in.");
       }
+    };
+
+    const handleSuccessfulLogin = async (user: any) => {
+      // Send welcome email (non-blocking, fire and forget)
+      if (user?.email) {
+        sendOrderEmail({
+          type: "welcome",
+          to: user.email,
+          customerName:
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email.split("@")[0] ||
+            "Valued Customer",
+        });
+      }
+      navigate({ to: "/account", replace: true });
     };
 
     processCallback();
@@ -61,13 +89,13 @@ function AuthCallback() {
   if (error) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 text-center">
-        <h2 className="text-2xl font-serif text-red-800 mb-4">Authentication Error</h2>
-        <p className="text-muted-foreground mb-6">{error}</p>
+        <h2 className="text-2xl font-serif text-red-800 mb-4">Sign-In Error</h2>
+        <p className="text-muted-foreground mb-6 max-w-sm">{error}</p>
         <button
           onClick={() => navigate({ to: "/auth" })}
-          className="bg-primary text-primary-foreground px-6 py-2 rounded-full text-sm font-medium tracking-wide uppercase"
+          className="bg-primary text-primary-foreground px-6 py-2 rounded-full text-sm font-medium tracking-wide uppercase hover:opacity-90 transition-opacity"
         >
-          Return to Sign In
+          Back to Sign In
         </button>
       </div>
     );

@@ -10,5 +10,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient<Database>(
   supabaseUrl || "",
-  supabaseAnonKey || ""
+  supabaseAnonKey || "",
+  {
+    auth: {
+      // PKCE flow: tokens never appear in URL — secure by default
+      flowType: "pkce",
+      // Keep session alive across browser refreshes via localStorage
+      persistSession: true,
+      // Auto-refresh token before expiry
+      autoRefreshToken: true,
+      // Detect session from URL hash (for implicit flow fallback)
+      detectSessionInUrl: true,
+      // Use localStorage so session survives page reload
+      storage: window.localStorage,
+    },
+  }
 );

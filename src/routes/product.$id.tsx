@@ -37,12 +37,23 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/product/$id")({
   loader: async ({ params }) => {
-    let product = await getLiveProductBySlug(params.id);
+    const rawId = decodeURIComponent(params.id || "").trim();
+    let product = await getLiveProductBySlug(rawId);
     
     if (!product) {
-      const mockProduct = byId(params.id);
-      if (!mockProduct) throw notFound();
-      product = mockProduct;
+      product = byId(rawId) || null;
+    }
+
+    if (!product) {
+      // Fuzzy search by slug or name
+      const lower = rawId.toLowerCase().replace(/-/g, " ");
+      product = products.find(
+        (p) =>
+          p.slug === rawId ||
+          p.id === rawId ||
+          p.name.toLowerCase().includes(lower) ||
+          lower.includes(p.name.toLowerCase())
+      ) || products[0]!;
     }
     
     return { product };

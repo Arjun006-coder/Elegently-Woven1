@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Link } from "@tanstack/react-router";
 import {
   ShoppingBag,
   Heart,
@@ -171,20 +170,20 @@ export function WelcomeModal() {
             {isLast && (
               <div className="mx-8 mt-4 grid grid-cols-2 gap-2 text-xs">
                 {[
-                  { label: "Shipping Policy", to: "/shipping-policy" },
-                  { label: "Return Policy", to: "/cancellation-policy" },
-                  { label: "Privacy Policy", to: "/privacy-policy" },
-                  { label: "Terms & Conditions", to: "/terms" },
+                  { label: "Shipping Policy", href: "/shipping-policy" },
+                  { label: "Return Policy", href: "/cancellation-policy" },
+                  { label: "Privacy Policy", href: "/privacy-policy" },
+                  { label: "Terms & Conditions", href: "/terms" },
                 ].map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
+                  <a
+                    key={link.href}
+                    href={link.href}
                     onClick={handleClose}
                     className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
                   >
                     <ChevronRight size={12} className="shrink-0" />
                     {link.label}
-                  </Link>
+                  </a>
                 ))}
               </div>
             )}

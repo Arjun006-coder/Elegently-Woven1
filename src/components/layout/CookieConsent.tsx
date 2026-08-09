@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Link } from "@tanstack/react-router";
 import { Cookie, X, Settings, Check } from "lucide-react";
 
 const COOKIE_CONSENT_KEY = "ew_cookie_consent";
@@ -75,9 +74,9 @@ export function CookieConsent() {
 
               <p className="mt-2.5 text-xs text-muted-foreground leading-relaxed">
                 We use cookies to improve your shopping experience, remember your cart, and show relevant products. See our{" "}
-                <Link to="/privacy-policy" className="text-primary hover:underline">
+                <a href="/privacy-policy" className="text-primary hover:underline">
                   Privacy Policy
-                </Link>
+                </a>
                 .
               </p>
 

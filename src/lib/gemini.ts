@@ -1,4 +1,5 @@
 // Gemini AI Client for ElegantlyWoven AI Saree Stylist
+// Set VITE_GEMINI_API_KEY in Vercel Environment Variables to activate
 
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 

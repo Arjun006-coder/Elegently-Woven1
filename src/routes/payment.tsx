@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 
 import { supabase } from "@/lib/supabase";
+import { sendOrderEmail } from "@/lib/email";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/payment")({
@@ -191,8 +192,22 @@ function PaymentPage() {
       };
       sessionStorage.setItem("ew_last_order", JSON.stringify(orderInfo));
 
+      // Send order confirmation email (non-blocking)
+      if (customerEmail && customerEmail !== "customer@example.com") {
+        sendOrderEmail({
+          type: "order_confirmation",
+          to: customerEmail,
+          customerName,
+          orderNumber: orderNum,
+          orderTotal: total,
+          items: lines.map((l) => ({ name: l.product.name, qty: l.qty, price: l.product.price })),
+          shippingAddress: shippingAddress as any,
+          paymentMethod: method.toUpperCase(),
+        });
+      }
+
       clearCart();
-      toast.success("Payment Successful!", { description: `Order ${orderNum} confirmed.` });
+      toast.success("Payment Successful!", { description: `Order ${orderNum} confirmed. Check your email!` });
       navigate({ to: "/order-success" });
     } catch (err) {
       console.error(err);

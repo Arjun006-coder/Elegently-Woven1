@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { sendOrderEmail } from "../lib/email";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth/callback")({
@@ -24,6 +25,15 @@ function AuthCallback() {
       }
 
       if (data.session) {
+        // Send welcome email if user has email
+        const user = data.session.user;
+        if (user.email) {
+          sendOrderEmail({
+            type: "welcome",
+            to: user.email,
+            customerName: user.user_metadata?.full_name || user.user_metadata?.name || user.email.split("@")[0] || "Valued Customer",
+          });
+        }
         // Successful login!
         navigate({ to: "/account", replace: true });
       } else {

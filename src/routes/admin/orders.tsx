@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { inr } from "../../lib/data";
+import { sendOrderEmail } from "../../lib/email";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import {
@@ -53,7 +54,7 @@ function AdminOrdersPage() {
     setLoading(false);
   }
 
-  async function handleStatusChange(orderId: string, userId: string | null, newStatus: string, orderNum: string) {
+  async function handleStatusChange(orderId: string, userId: string | null, newStatus: string, orderNum: string, order: any) {
     const { error } = await supabase
       .from("orders")
       .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -65,7 +66,30 @@ function AdminOrdersPage() {
       toast.success(`Order #${orderNum} status updated to ${newStatus}`);
       setOrders(orders.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
 
-      // Notify customer if user_id exists
+      // Send email to customer based on status
+      const customerEmail = order.customer_email;
+      const customerName = order.customer_name || "Valued Customer";
+      if (customerEmail) {
+        if (newStatus === "Shipped") {
+          sendOrderEmail({
+            type: "order_shipped",
+            to: customerEmail,
+            customerName,
+            orderNumber: orderNum,
+            trackingNumber: order.tracking_number,
+            estimatedDelivery: new Date(Date.now() + 3 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+          });
+        } else if (newStatus === "Delivered") {
+          sendOrderEmail({
+            type: "order_delivered",
+            to: customerEmail,
+            customerName,
+            orderNumber: orderNum,
+          });
+        }
+      }
+
+      // Notify customer in-app if user_id exists
       if (userId) {
         try {
           await supabase.from("notifications").insert({
@@ -222,7 +246,7 @@ ElegantlyWoven Team`);
                     <select
                       className="text-xs font-semibold px-2 py-1 rounded-md border border-input bg-background"
                       value={ord.status || "Processing"}
-                      onChange={(e) => handleStatusChange(ord.id, ord.user_id, e.target.value, ord.order_number)}
+                      onChange={(e) => handleStatusChange(ord.id, ord.user_id, e.target.value, ord.order_number, ord)}
                     >
                       <option value="Processing">Processing</option>
                       <option value="Shipped">Shipped</option>
